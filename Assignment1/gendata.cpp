@@ -1,12 +1,6 @@
 #include <bits/stdc++.h>
 
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<netinet/in.h>
-#include<arpa/inet.h>
-#include<fcntl.h> 
-
-#define N 5   // N = 5 million (number of data points)
+#define N 5000000   // N = 5 million (number of data points)
 /* Range of random numbers generated*/
 #define LOWER 0
 #define UPPER 20

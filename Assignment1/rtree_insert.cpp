@@ -68,23 +68,29 @@ bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
         }
 
         /* New NodeList to be inserted in parent node of node2 */
-        RTNodeList* new_node = (struct RTNodeList *)mem_alloc(sizeof(struct RTNodeList));
-        new_node->dmin = dmin_node;
-        new_node->dmax = dmax_node;
-        new_node->RTNodeList_num = ::RTNodeListNum;
-        new_node->child = node2;
+        RTNodeList* new_node_list = (struct RTNodeList *)mem_alloc(sizeof(struct RTNodeList));
+        new_node_list->dmin = dmin_node;
+        new_node_list->dmax = dmax_node;
+        new_node_list->RTNodeList_num = ::RTNodeListNum;
+        new_node_list->child = node2;
 
         /* If there is left in parent node, make an entry */
         if((P->entry).size() < ::M){
-            (P->entry).push_back(*new_node);
+            (P->entry).push_back(*new_node_list);
             PP = NULL;
         }
         else{
-            /* TODO: split_node(P, new_node) */
+            /* TODO: split_node(P, PP, new_node_list) */
         }
     }
 
     return AdjustTree(P, PP, dim);
+}
+
+
+
+bool QuadraticSplit(RTNode* node1, RTNode* node2, RTNodeList* node_list_ptr){
+    return true;
 }
 
 
@@ -113,8 +119,8 @@ int main(int argc, char** argv){
     filename = "testdata_dim=" + to_string(n) + ".txt";
 
     /* Initialize M and m (Max and Min number of childrens for a node) */
-    M = floor(4096 / (4*n+1));
-    m = floor(M/2);
+    ::M = floor(4096 / (4*n+1));
+    ::m = floor(M/2);
 
     return 0;
 }

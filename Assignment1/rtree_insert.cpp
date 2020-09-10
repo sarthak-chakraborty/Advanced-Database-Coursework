@@ -39,7 +39,7 @@ bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
         if(it->child->RTNode_num == node1->RTNode_num){
 
             /* For all entries in node1, check the minimum and maximum among each dimension */
-            vector<int> dmin_node(dim, 0), dmax_node(dim, 0);
+            vector<int> dmin_node(dim, INT_MAX), dmax_node(dim, INT_MIN);
             vector<RTNodeEntry>::iterator it1;
             for(it1 = (node1->entry).begin(); it1 < (node1->entry).end(); it1++){
                 // TODO: Better Implementation
@@ -48,8 +48,8 @@ bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
                     dmax_node[idx] = max(dmax_node[idx], (it1->dmax)[idx]);
                 }
             }
-            it->dmin.insert((it->dmin).begin(), dmin_node.begin(), dmin_node.end());
-            it->dmax.insert((it->dmax).begin(), dmax_node.begin(), dmax_node.end());
+            it->dmin.assign(dmin_node.begin(), dmin_node.end());
+            it->dmax.assign(dmax_node.begin(), dmax_node.end());
             break;
         }
     }
@@ -57,7 +57,7 @@ bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
     /* [AT4] */
     if(node2 != NULL){
         /* For all entries in node2, check the minimum and maximum among each dimension */
-        vector<int> dmin_node(dim, 0), dmax_node(dim, 0);
+        vector<int> dmin_node(dim, INT_MAX), dmax_node(dim, INT_MIN);
         vector<RTNodeEntry>::iterator it;
         for(it = (node2->entry).begin(); it < (node2->entry).end(); it++){
             // TODO: Better Implementation
@@ -80,7 +80,7 @@ bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
             PP = NULL;
         }
         else{
-            /* TODO: split_node(P, PP, new_node_list) */
+            QuadraticSplit(P, PP, new_node_entry);
         }
     }
 
@@ -106,7 +106,7 @@ int* PickSeeds(vector<RTNodeEntry> all_node_entries){
             int dim = entry1.dmax.size();
 
             /* Get the Combined Node */
-            vector<int> dmin_combine(dim, 0), dmax_combine(dim, 0);
+            vector<int> dmin_combine(dim, INT_MAX), dmax_combine(dim, INT_MIN);
             for(int idx = 0; idx < dim; idx++){
                 dmin_combine[idx] = min(entry1.dmin[idx], entry2.dmin[idx]);
                 dmax_combine[idx] = max(entry1.dmax[idx], entry2.dmax[idx]);   
@@ -150,7 +150,7 @@ int* PickNext(RTNode* node1, RTNode* node2, vector<RTNodeEntry> all_node_entries
         double curr_area = 0.0, new_area = 0.0;
 
         vector<int> dmin_node(dim), dmax_node(dim);
-        vector<int> dmin_node_curr(dim, 0), dmax_node_curr(dim, 0);
+        vector<int> dmin_node_curr(dim, INT_MAX), dmax_node_curr(dim, INT_MIN);
         vector<RTNodeEntry>::iterator it;
 
         /* Calculate the increase in area of bounding rectangle for Group 1 */
@@ -173,8 +173,8 @@ int* PickNext(RTNode* node1, RTNode* node2, vector<RTNodeEntry> all_node_entries
         dmin_node.clear(); dmax_node.clear();
         dmin_node_curr.clear(); dmax_node_curr.clear();
         
-        fill(dmin_node_curr.begin(), dmin_node_curr.end(), 0);
-        fill(dmax_node_curr.begin(), dmax_node_curr.end(), 0);
+        fill(dmin_node_curr.begin(), dmin_node_curr.end(), INT_MAX);
+        fill(dmax_node_curr.begin(), dmax_node_curr.end(), INT_MIN);
         curr_area = new_area = 0.0;
 
         /* Calculate the increase in area of bounding rectangle for Group 1 */

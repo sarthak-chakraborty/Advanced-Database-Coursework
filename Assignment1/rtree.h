@@ -12,7 +12,7 @@ struct RTNodeEntry{
    int RTNodeEntry_num;
    struct RTNode* child;
 };
-typedef RTNodeEntry RTNodeEntry;
+typedef struct RTNodeEntry RTNodeEntry;
 
 struct RTNode{
     vector<RTNodeEntry> entry;

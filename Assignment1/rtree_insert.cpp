@@ -24,7 +24,7 @@ static void* mem_alloc(size_t size) {
 
 
 /* Quadratic Pick Seeds Algorithm */
-int* PickSeeds(vector<RTNodeEntry> all_node_entries){
+int* PickSeeds(vector<RTNodeEntry>& all_node_entries){
 
     int init_entries_idx[2] = {-1, -1}; 
 
@@ -70,7 +70,7 @@ int* PickSeeds(vector<RTNodeEntry> all_node_entries){
 
 
 /* Quadratic Pick Next Algorithm */
-int* PickNext(RTNode* node1, RTNode* node2, vector<RTNodeEntry> all_node_entries){
+int* PickNext(RTNode* node1, RTNode* node2, vector<RTNodeEntry>& all_node_entries){
     int next_entry_idx = -1;
     int identify_group = -1;
 

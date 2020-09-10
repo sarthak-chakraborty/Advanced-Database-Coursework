@@ -25,7 +25,6 @@ static void* mem_alloc(size_t size) {
 
 /* Quadratic Pick Seeds Algorithm */
 int* PickSeeds(vector<RTNodeEntry>& all_node_entries){
-
     int init_entries_idx[2] = {-1, -1}; 
 
     double max_dist = INT_MIN;
@@ -144,7 +143,6 @@ int* PickNext(RTNode* node1, RTNode* node2, vector<RTNodeEntry>& all_node_entrie
                 identify_group = 1;   
         }
     }
-
     static int arr[2] = {next_entry_idx, identify_group};
     return arr;
 }
@@ -299,6 +297,107 @@ bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
 
     return AdjustTree(P, PP, dim);
 }
+
+
+
+/* Choose Leaf Algorithm */
+RTNode* ChooseLeaf(RTNode* node, RTNodeEntry* E){
+
+    /* [CL2] */
+    if(node == NULL || (node->entry[0]).child == NULL){
+        return node;
+    }
+
+    /* [CL3] */
+    int dim = (node->entry[0]).dmin.size(), num_entry = (node->entry).size();
+
+    double cur_area, new_area, area_inc, min_inc = 0, min_area = 0;
+    int new_dmax, new_dmin;
+
+    RTNodeEntry *F = NULL, *cur_entry;
+
+    for(int i = 0; i < num_entry; i++){
+        cur_area = new_area = 0;
+        cur_entry = &(node->entry[i]);
+
+        /* For current entry, find current area and new area. (Take log to avoid overflow) */
+        for(int j = 0; j < dim; j++){
+            cur_area += log(cur_entry->dmax[j] - cur_entry->dmin[j]);
+
+            new_dmin = min(cur_entry->dmin[j], E->dmin[j]);
+            new_dmax = max(cur_entry->dmax[j], E->dmax[j]);
+            new_area += log(new_dmax - new_dmin);
+        }
+
+        area_inc = new_area - cur_area;
+        if(F == NULL || area_inc < min_inc || (area_inc == min_inc && cur_area < min_area)){
+            min_inc = area_inc;
+            min_area = cur_area;
+            F = cur_entry;
+        }
+    }
+
+    /* [CL4] */
+    return ChooseLeaf(F->child, E);
+
+}
+
+
+/* Write tree to a file 
+Each line corresponds to a node
+node_num  parent_node_num  num_entries  R1(rect_num, dmin[], dmax[], child_node_num)  R2(dmin[], dmax[], child_node_num)
+*/
+void WriteTree(RTNode* node, FILE* fout){
+    
+    if(node == NULL){
+        return;
+    }
+    
+    /* Write node_num, parent_node_num, num_entries */
+    fprintf(fout, "%d ", node->RTNode_num);
+
+    if(node->parent != NULL){
+        fprintf(fout, "%d ", node->parent->RTNode_num);
+    }
+    else{
+        fprintf(fout, "-1 ");
+    }
+
+    int dim = (node->entry[0]).dmin.size(), num_entry = (node->entry).size();
+
+    fprintf(fout, "%d ", num_entry);
+
+    /* Write rectangles in the node */
+    RTNodeEntry* cur_entry;
+    for(int i = 0; i < num_entry; i++){
+        cur_entry = &(node->entry[i]);
+
+        /* Write rect_num and rect coodinates */
+        fprintf(fout, "%d ", cur_entry->RTNodeEntry_num);
+        
+        for(int j = 0; j < dim; j++){
+            fprintf(fout, "%d %d ", cur_entry->dmin[j], cur_entry->dmax[j]);
+        }
+        
+        /* Write child_node_num */
+        int child_node_num = -1;
+        if(cur_entry->child != NULL){
+            child_node_num = cur_entry->child->RTNode_num;
+        }
+        fprintf(fout, "%d ", child_node_num);
+    }
+
+    fprintf(fout, "\n");
+    
+    /* Write subtrees */
+    for(int i = 0; i < num_entry; i++){
+        cur_entry = &(node->entry[i]);
+        if(cur_entry->child != NULL){
+            WriteTree(cur_entry->child, fout);
+        }
+    }
+}
+
 
 
 

@@ -59,7 +59,7 @@ RTNode* ChooseLeaf(RTNode* node, Rect* E){
 
 Each line corresponds to a node
 
-node_num  parent_rect_num  R1(rect_num, dmin[], dmax[], child_node_num)  R2(dmin[], dmax[], child_node_num)
+node_num  parent_rect_num  num_entries  R1(rect_num, dmin[], dmax[], child_node_num)  R2(dmin[], dmax[], child_node_num)
 
 */
 void WriteTree(RTNode* node, FILE* fout){
@@ -68,7 +68,7 @@ void WriteTree(RTNode* node, FILE* fout){
         return;
     }
     
-    /* Write node_num and parent_rect_num */
+    /* Write node_num, parent_rect_num, num_entries */
 
     if(node->parent == NULL){
         node->RTNode_num = node_count++;
@@ -83,8 +83,11 @@ void WriteTree(RTNode* node, FILE* fout){
         fprintf(fout, "-1 ");
     }
 
-    /* Write rectangles in the node */
     int dim = (node->entry[0]).dmin.size(), num_entry = (node->entry).size();
+
+    fprintf(fout, "%d ", num_entry);
+
+    /* Write rectangles in the node */
 
     Rect* cur_entry;
     for(int i = 0; i < num_entry; i++){

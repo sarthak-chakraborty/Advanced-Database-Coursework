@@ -72,6 +72,7 @@ bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
         new_node_entry->dmin.assign(dmin_node.begin(), dmin_node.end());
         new_node_entry->dmax.assign(dmax_node.begin(), dmax_node.end());
         new_node_entry->RTNodeEntry_num = ::RTNodeEntryNum;
+        ::RTNodeEntryNum++;
         new_node_entry->child = node2;
 
         /* If there is left in parent node, make an entry */
@@ -80,6 +81,10 @@ bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
             PP = NULL;
         }
         else{
+            PP = (RTNode *)mem_alloc(sizeof(RTNode));
+            PP->RTNode_num = ::RTNodeNum;
+            ::RTNodeNum++;
+            PP->parent = P->parent;
             QuadraticSplit(P, PP, new_node_entry);
         }
     }
@@ -145,54 +150,74 @@ int* PickNext(RTNode* node1, RTNode* node2, vector<RTNodeEntry> all_node_entries
     vector<double> area_inc1, area_inc2;
     
     /* [PN1] */
-    for(int i = 0; i < all_node_entries.size(); i++){
 
-        double curr_area = 0.0, new_area = 0.0;
+    /* Calculate Current Area for bounding box of Group 1 and Group 2 */
+    double curr_area1 = 0.0, curr_area2 = 0.0;
+    vector<int> dmin_node_curr(dim, INT_MAX), dmax_node_curr(dim, INT_MIN);
+    vector<RTNodeEntry>::iterator it;
+
+    /* Group 1 */
+    for(it = (node1->entry).begin(); it < (node1->entry).end(); it++){
+        for(int idx = 0; idx < dim; idx++){
+            dmin_node_curr[idx] = min(dmin_node_curr[idx], (it->dmin)[idx]);
+            dmax_node_curr[idx] = max(dmax_node_curr[idx], (it->dmax)[idx]);
+        }
+    }
+    for(int idx = 0; idx < dim; idx++){
+        curr_area1 += log(dmax_node_curr[idx] - dmin_node_curr[idx]);
+    }
+
+    /* Clear history of Group 1 */
+    dmin_node_curr.clear(); dmax_node_curr.clear();
+    fill(dmin_node_curr.begin(), dmin_node_curr.end(), INT_MAX);
+    fill(dmax_node_curr.begin(), dmax_node_curr.end(), INT_MIN);
+
+    /* Group 2 */
+    for(it = (node2->entry).begin(); it < (node2->entry).end(); it++){
+        for(int idx = 0; idx < dim; idx++){
+            dmin_node_curr[idx] = min(dmin_node_curr[idx], (it->dmin)[idx]);
+            dmax_node_curr[idx] = max(dmax_node_curr[idx], (it->dmax)[idx]);
+        }
+    }
+    for(int idx = 0; idx < dim; idx++){
+        curr_area2 += log(dmax_node_curr[idx] - dmin_node_curr[idx]);
+    }
+
+
+    /* Calculate increase in Area */
+    for(int i = 0; i < all_node_entries.size(); i++){
+        double new_area = 0.0;
 
         vector<int> dmin_node(dim), dmax_node(dim);
-        vector<int> dmin_node_curr(dim, INT_MAX), dmax_node_curr(dim, INT_MIN);
         vector<RTNodeEntry>::iterator it;
 
         /* Calculate the increase in area of bounding rectangle for Group 1 */
         for(it = (node1->entry).begin(); it < (node1->entry).end(); it++){
             for(int idx = 0; idx < dim; idx++){
-                dmin_node_curr[idx] = min(dmin_node_curr[idx], (it->dmin)[idx]);
-                dmax_node_curr[idx] = max(dmax_node_curr[idx], (it->dmax)[idx]);
-
                 dmin_node[idx] = min(it->dmin[idx], all_node_entries[i].dmin[idx]);
                 dmax_node[idx] = max(it->dmax[idx], all_node_entries[i].dmax[idx]);
             }
         }
-        for(int idx = 0; idx < dim; idx++){
-            curr_area += log(dmax_node_curr[idx] - dmin_node_curr[idx]);
+        for(int idx = 0; idx < dim; idx++)
             new_area += log(dmax_node[idx] - dmin_node[idx]);
-        }
-        area_inc1.push_back(new_area - curr_area);
+        area_inc1.push_back(new_area - curr_area1);
 
         /* Clear history of Group 1 */
         dmin_node.clear(); dmax_node.clear();
-        dmin_node_curr.clear(); dmax_node_curr.clear();
-        
-        fill(dmin_node_curr.begin(), dmin_node_curr.end(), INT_MAX);
-        fill(dmax_node_curr.begin(), dmax_node_curr.end(), INT_MIN);
-        curr_area = new_area = 0.0;
+        new_area = 0.0;
 
         /* Calculate the increase in area of bounding rectangle for Group 1 */
         for(it = (node2->entry).begin(); it < (node2->entry).end(); it++){
             for(int idx = 0; idx < dim; idx++){
-                dmin_node_curr[idx] = min(dmin_node_curr[idx], (it->dmin)[idx]);
-                dmax_node_curr[idx] = max(dmax_node_curr[idx], (it->dmax)[idx]);
-
                 dmin_node[idx] = min(it->dmin[idx], all_node_entries[i].dmin[idx]);
                 dmax_node[idx] = max(it->dmax[idx], all_node_entries[i].dmax[idx]);
             }
         }
-        for(int idx = 0; idx < dim; idx++){
-            curr_area += log(dmax_node_curr[idx] - dmin_node_curr[idx]);
+        for(int idx = 0; idx < dim; idx++)
             new_area += log(dmax_node[idx] - dmin_node[idx]);
-        }
-        area_inc2.push_back(new_area - curr_area);
+        area_inc2.push_back(new_area - curr_area2);
     }
+
 
     /* [PN2] */
     double max_dist = INT_MIN;
@@ -236,8 +261,6 @@ bool QuadraticSplit(RTNode* node1, RTNode* node2, RTNodeEntry* node_entry_ptr){
     /* Creating initial two groups */
     node1->entry.push_back(all_node_entries[init_entries_idx[0]]);
     node2->entry.push_back(all_node_entries[init_entries_idx[1]]);
-    node2->RTNode_num = ::RTNodeNum;
-    node2->parent = node1->parent;
 
     /* Delete corresponding elements from all_node_entries */
     all_node_entries.erase(all_node_entries.begin() + init_entries_idx[0]);

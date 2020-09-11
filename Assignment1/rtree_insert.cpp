@@ -2,7 +2,9 @@
 #include <math.h>
 #include "rtree.h"
 
-#define N 5000000   // N = 5 million (number of data points)
+// #define N 5000000   // N = 5 million (number of data points)
+#define N 5
+#define MAXLINE 5000
 
 using namespace std;
 
@@ -137,6 +139,7 @@ int* PickNext(RTNode* node1, RTNode* node2, vector<RTNodeEntry>& all_node_entrie
         if(abs(area_inc2[i] - area_inc1[i]) > max_dist){
             max_dist = abs(area_inc2[i] - area_inc1[i]);
             next_entry_idx = i;
+
             if(area_inc1[i] < area_inc2[i])
                 identify_group = 0;
             else
@@ -229,15 +232,15 @@ bool QuadraticSplit(RTNode* node1, RTNode* node2, RTNodeEntry* node_entry_ptr){
 
 
 /* Adjust Tree Algorithm */
-bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
+vector<RTNode*> AdjustTree(RTNode* node1, RTNode* node2, int dim){
 
     /* [AT2] */
     if(node1->parent == NULL){
-        return true;
+        return {node1, node2};
     }
 
     /* [AT3] */
-    RTNode* P = node1->parent, *PP;
+    RTNode* P = node1->parent, *PP = NULL;
     vector<RTNodeEntry>::iterator it;
     for(it = (P->entry).begin(); it < (P->entry).end(); it++){
 
@@ -277,8 +280,7 @@ bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
         RTNodeEntry* new_node_entry = (RTNodeEntry *)mem_alloc(sizeof(RTNodeEntry));
         new_node_entry->dmin.assign(dmin_node.begin(), dmin_node.end());
         new_node_entry->dmax.assign(dmax_node.begin(), dmax_node.end());
-        new_node_entry->RTNodeEntry_num = ::RTNodeEntryNum;
-        ::RTNodeEntryNum++;
+        new_node_entry->RTNodeEntry_num = ::RTNodeEntryNum++;
         new_node_entry->child = node2;
 
         /* If there is left in parent node, make an entry */
@@ -288,8 +290,7 @@ bool AdjustTree(RTNode* node1, RTNode* node2, int dim){
         }
         else{
             PP = (RTNode *)mem_alloc(sizeof(RTNode));
-            PP->RTNode_num = ::RTNodeNum;
-            ::RTNodeNum++;
+            PP->RTNode_num = ::RTNodeNum++;
             PP->parent = P->parent;
             QuadraticSplit(P, PP, new_node_entry);
         }
@@ -343,13 +344,130 @@ RTNode* ChooseLeaf(RTNode* node, RTNodeEntry* E){
 }
 
 
+RTNode* Insert(const char* filename, int dim){
+    FILE* fin = fopen(filename, "r");
+    if(fin == NULL){
+        cerr << "[ERROR] Cannot Open File" << endl;
+        return NULL;
+    }
+    char* line = new char[MAXLINE]; 
+    RTNode* root = NULL;
+
+    while(fgets(line, MAXLINE, fin)){
+        cout << "[LINE]->" << line << endl;
+
+        /* Make new RTNodeEntry */
+        RTNodeEntry* entry = (RTNodeEntry*)mem_alloc(sizeof(RTNodeEntry));
+        entry->RTNodeEntry_num = ::RTNodeEntryNum++;
+        entry->child = NULL;
+
+        vector<int> dmin, dmax;
+        int flag=0;
+        char* token = strtok(line, " ");
+        while(token != NULL){
+            if(!flag){
+                dmin.push_back(atoi(token));
+                flag = 1;
+            }
+            else{
+                dmax.push_back(atoi(token));
+                flag = 0;
+            }
+            token = strtok(NULL, " ");
+        }
+        entry->dmin.assign(dmin.begin(), dmin.end());
+        entry->dmax.assign(dmax.begin(), dmax.end());
+        
+        /* [I1] */
+        RTNode* entry_node = ChooseLeaf(root, entry);
+
+        if(entry_node == NULL){
+            cout << "NULL entry node" << endl;
+            entry_node = (RTNode*)mem_alloc(sizeof(RTNode));
+            entry_node->RTNode_num = ::RTNodeNum++;
+            entry_node->parent = NULL;
+            root = entry_node;
+        }
+        /* [I2] */
+        RTNode* new_node = NULL;
+        if(entry_node->entry.size() < ::M)
+            entry_node->entry.push_back(*entry);
+        else{
+            cout << "New Node to be created" << endl;
+            new_node = (RTNode*)mem_alloc(sizeof(RTNode));
+            new_node->RTNode_num = ::RTNodeNum++;
+            new_node->parent = entry_node->parent;
+
+            cout << "Going to Split" << endl;
+            bool split = QuadraticSplit(entry_node, new_node, entry);
+            cout << "[Split Result] " << noboolalpha << split << " == " << boolalpha << split << endl;
+            /* [I3] */
+            vector<RTNode*> split_nodes = AdjustTree(entry_node, new_node, dim);
+
+            /* [I4] */
+            if(split_nodes[1] != NULL && split_nodes[0]->parent == NULL && split_nodes[1]->parent == NULL){
+                /* Create new root node */
+                RTNode* new_root = (RTNode *)mem_alloc(sizeof(RTNode));
+                new_root->parent = NULL;
+                new_root->RTNode_num = ::RTNodeNum++;
+
+                /* Create 2 RTNodeEntry to  the new root */
+                /* Node1 */
+                RTNodeEntry* entry1 = (RTNodeEntry *)mem_alloc(sizeof(RTNodeEntry));
+                entry1->RTNodeEntry_num = ::RTNodeEntryNum++;
+                entry1->child = split_nodes[0];
+
+                vector<int> dmin_node(dim, INT_MAX), dmax_node(dim, INT_MIN);
+                vector<RTNodeEntry>::iterator it;
+                for(it = split_nodes[0]->entry.begin(); it < split_nodes[0]->entry.end(); it++){
+                    for(int idx = 0; idx < dim; idx++){
+                        dmin_node[idx] = min(dmin_node[idx], it->dmin[idx]);
+                        dmax_node[idx] = max(dmax_node[idx], it->dmax[idx]);
+                    }
+                }
+                entry1->dmin.assign(dmin_node.begin(), dmin_node.end());
+                entry1->dmax.assign(dmax_node.begin(), dmax_node.end());
+
+                /* Node2 */
+                RTNodeEntry* entry2 = (RTNodeEntry *)mem_alloc(sizeof(RTNodeEntry));
+                entry2->RTNodeEntry_num = ::RTNodeEntryNum++;
+                entry2->child = split_nodes[1];
+
+                dmin_node.clear(); dmax_node.clear();
+                fill(dmin_node.begin(), dmin_node.end(), INT_MAX);
+                fill(dmax_node.begin(), dmax_node.end(), INT_MIN);
+                for(it = split_nodes[1]->entry.begin(); it < split_nodes[1]->entry.end(); it++){
+                    for(int idx = 0; idx < dim; idx++){
+                        dmin_node[idx] = min(dmin_node[idx], it->dmin[idx]);
+                        dmax_node[idx] = max(dmax_node[idx], it->dmax[idx]);
+                    }
+                }
+                entry2->dmin.assign(dmin_node.begin(), dmin_node.end());
+                entry2->dmax.assign(dmax_node.begin(), dmax_node.end());
+
+                /* Add RTNodeEntry to the new root */
+                new_root->entry.push_back(*entry1);
+                new_root->entry.push_back(*entry2);
+
+                root = new_root;
+            }
+        }
+    }
+    fclose(fin);
+    return root;
+}
+
+
+
+
 /* Write tree to a file 
 Each line corresponds to a node
 node_num  parent_node_num  num_entries  R1(rect_num, dmin[], dmax[], child_node_num)  R2(dmin[], dmax[], child_node_num)
 */
 void WriteTree(RTNode* node, FILE* fout){
-    
+
     if(node == NULL){
+        cout << "No RTree formed" << endl;
         return;
     }
     
@@ -403,7 +521,7 @@ void WriteTree(RTNode* node, FILE* fout){
 
 int main(int argc, char** argv){
     int n = -1;
-    string filename;
+    string in_filename, out_filename;
 
     /* Sanity Check for CLI*/
     if(argc < 2){
@@ -422,11 +540,19 @@ int main(int argc, char** argv){
     }
 
     /* Create filename */
-    filename = "testdata_dim=" + to_string(n) + ".txt";
+    in_filename = "testdata_dim=" + to_string(n) + ".txt";
+    out_filename = "RTree_dim=" + to_string(n) + "_N=" + to_string(N) + ".txt";
+
 
     /* Initialize M and m (Max and Min number of childrens for a node) */
-    ::M = floor(4096 / (4*n+1));
+    // ::M = floor(4096 / (4*n+1));
+    ::M = 2;
     ::m = floor(M/2);
+
+    cout << "[Insertion function called]" << endl;
+    RTNode* root_node = Insert(in_filename.c_str(), n);
+
+    WriteTree(root_node, fopen(out_filename.c_str(), "w"));
 
     return 0;
 }

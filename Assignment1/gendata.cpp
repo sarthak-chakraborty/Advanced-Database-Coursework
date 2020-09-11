@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 
 // #define N 5000000   // N = 5 million (number of data points)
-#define N 50
+#define N 5
 /* Range of random numbers generated*/
 #define LOWER 0
 #define UPPER 20
@@ -50,7 +50,7 @@ int main(int argc, char** argv){
 
 
     /* Create filename */
-    filename = "testdata_dim=" + to_string(n) + ".txt";
+    filename = "testdata_dim=" + to_string(n) + "_N=" + to_string(N) + ".txt";
 
     /* Generate Data and write it into a file */
     gen_data(n, filename.c_str());

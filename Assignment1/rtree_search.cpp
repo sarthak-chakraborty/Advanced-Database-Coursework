@@ -62,6 +62,9 @@ void ReadTree(RTNode* node, ifstream &fin){
         cur_entry = (RTNodeEntry *)mem_alloc(sizeof(RTNodeEntry));
         line>>(cur_entry->RTNodeEntry_num);
 
+        cur_entry->dmin.resize(n);
+        cur_entry->dmax.resize(n);
+
         for(int j = 0; j < n; j++){
             line>>(cur_entry->dmin[j])>>(cur_entry->dmax[j]);
         }
@@ -119,15 +122,25 @@ int main(int argc, char** argv){
     ::M = floor(4096 / (4*n+1));
     ::m = floor(M/2);
 
-/*
+
     ifstream fin(filename);
+
+    if(!fin.is_open()){
+        cout<<"File could not be opened"<<endl;
+        exit(0);
+    }
+    
+    int root_node_num;
+
+    fin>>root_node_num;    
+
     RTNode* root = (RTNode *)mem_alloc(sizeof(RTNode));
     root->parent = NULL;
-    root->RTNode_num = 0;
+    root->RTNode_num = root_node_num;
 
     ReadTree(root, fin);
 
     fin.close();
-*/
+
     return 0;
 }

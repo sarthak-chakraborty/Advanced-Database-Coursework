@@ -2,7 +2,7 @@
 #include <math.h>
 #include "rtree.h"
 
-#define N 100000   // N = 5 million (number of data points)
+#define N 500000   // N = 5 million (number of data points)
 // #define N 20
 #define N_Trials 50 // Number of query rectangles searched
 
@@ -34,24 +34,22 @@ static void* mem_alloc(size_t size) {
 Each line corresponds to a node
 node_num  parent_node_num  num_entries  R1(rect_num, dmin[], dmax[], child_node_num)  R2(dmin[], dmax[], child_node_num)
 */
-void ReadTree(RTNode* node, ifstream &fin){
+void ReadTree(RTNode* node, vector<string> &lines){
     
     if(node == NULL){
         return;
     }
 
-    fin.seekg(ios::beg);
-
     int node_num;
-    static int c=1;
+
+    static int c = 0;
+    cout<< c++ <<endl;
 
     /* Find line from the file corresponding to the current node */
-    string line_tmp;
     istringstream line;
     
-    while(getline(fin, line_tmp)){
-        cout << c++ << endl;
-        line.str(line_tmp);
+    for(int i = 0; i < lines.size(); i++){
+        line.str(lines[i]);
         line >> node_num;
         if(node_num == node->RTNode_num)
             break;
@@ -92,10 +90,29 @@ void ReadTree(RTNode* node, ifstream &fin){
     for(int i = 0; i < num_entry; i++){
         cur_entry = &(node->entry[i]);
         if(cur_entry->child != NULL){
-            ReadTree(cur_entry->child, fin);
+            ReadTree(cur_entry->child, lines);
         }
     }
 
+}
+
+vector<string> ReadFile(string filename){
+    ifstream fin(filename);
+
+    if(!fin.is_open()){
+        cout<<"File could not be opened"<<endl;
+        exit(0);
+    }
+
+    vector<string> lines;
+    string line;
+
+    while(getline(fin, line)){ 
+        lines.push_back(line);
+    }
+
+    fin.close();
+    return lines;
 }
 
 /* Search RTree Algorithm */
@@ -196,27 +213,23 @@ int main(int argc, char** argv){
     ::M = floor(4096 / (4*n+1));
     ::m = floor(M/2);
 
+    cout << "Loading File..." <<  endl;
+    vector<string> lines = ReadFile(filename);
+    cout << "Done Loading" <<  endl;
 
-    ifstream fin(filename);
-
-    if(!fin.is_open()){
-        cout<<"File could not be opened"<<endl;
-        exit(0);
-    }
-    
+    istringstream line(lines[0]);
     int root_node_num;
 
-    fin >> root_node_num;    
+    line >> root_node_num;    
 
     RTNode* root = (RTNode *)mem_alloc(sizeof(RTNode));
     root->parent = NULL;
     root->RTNode_num = root_node_num;
 
     cout << "Reading Tree..." <<  endl;
-    ReadTree(root, fin);
-
-    fin.close();
-    cout << "Reading Complete\n" << endl;
+    ReadTree(root, lines);
+    cout << "Reading Complete\n" << endl;    
+    lines.clear();
 
     srand(time(0));
     RTNodeEntry query_rect;
@@ -229,7 +242,7 @@ int main(int argc, char** argv){
     for(int i = 0; i < N_Trials; i++){
         query_rect = gen_query_rect();
         cout << "Query Rectangle " << i << endl;
-        printEntry(query_rect);
+        //printEntry(query_rect);
 
         nodes_visited = 0;
 

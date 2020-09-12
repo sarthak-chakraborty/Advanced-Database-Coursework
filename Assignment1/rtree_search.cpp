@@ -2,7 +2,7 @@
 #include <math.h>
 #include "rtree.h"
 
-#define N 100000   // N = 5 million (number of data points)
+#define N 500000   // N = 5 million (number of data points)
 // #define N 20
 #define N_Trials 50 // Number of query rectangles searched
 
@@ -43,14 +43,12 @@ void ReadTree(RTNode* node, ifstream &fin){
     fin.seekg(ios::beg);
 
     int node_num;
-    static int c=1;
 
     /* Find line from the file corresponding to the current node */
     string line_tmp;
     istringstream line;
     
     while(getline(fin, line_tmp)){
-        cout << c++ << endl;
         line.str(line_tmp);
         line >> node_num;
         if(node_num == node->RTNode_num)

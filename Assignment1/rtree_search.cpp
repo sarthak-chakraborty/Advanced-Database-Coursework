@@ -42,9 +42,6 @@ void ReadTree(RTNode* node, vector<string> &lines){
 
     int node_num;
 
-    static int c = 0;
-    cout<< c++ <<endl;
-
     /* Find line from the file corresponding to the current node */
     istringstream line;
     
@@ -57,12 +54,12 @@ void ReadTree(RTNode* node, vector<string> &lines){
 
     /* Add Rectangles to the node */
     int parent_node_num, num_entry, child_node_num;
-    line>>parent_node_num>>num_entry;
+    line >> parent_node_num >> num_entry;
 
     RTNodeEntry* cur_entry;
     for(int i = 0; i < num_entry; i++){
         cur_entry = (RTNodeEntry *)mem_alloc(sizeof(RTNodeEntry));
-        line>>(cur_entry->RTNodeEntry_num);
+        line >> (cur_entry->RTNodeEntry_num);
 
         cur_entry->dmin.resize(n);
         cur_entry->dmax.resize(n);
@@ -100,7 +97,7 @@ vector<string> ReadFile(string filename){
     ifstream fin(filename);
 
     if(!fin.is_open()){
-        cout<<"File could not be opened"<<endl;
+        cout << "File could not be opened" << endl;
         exit(0);
     }
 

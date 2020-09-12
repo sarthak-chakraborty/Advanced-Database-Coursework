@@ -443,6 +443,7 @@ RTNode* Insert(const char* filename, int dim){
         if(entry_node->entry.size() < ::M){
             // cout << entry->RTNodeEntry_num << " NodeEntry in Node " << entry_node->RTNode_num << " originally" << endl;
             entry_node->entry.push_back(*entry);
+            vector<RTNode*> split_nodes = AdjustTree(entry_node, NULL, dim);
         }
         else{
             // cout << "New Node to be created" << endl;

@@ -2,7 +2,9 @@
 #include <math.h>
 #include "rtree.h"
 
-#define N 5000000   // N = 5 million (number of data points)
+//#define N 5000000   // N = 5 million (number of data points)
+
+#define N 20
 
 using namespace std;
 
@@ -95,6 +97,43 @@ void ReadTree(RTNode* node, ifstream &fin){
 }
 
 
+void Search(RTNode* node, RTNodeEntry* S, vector<RTNodeEntry> &out){
+    if(node == NULL){
+        return;
+    }
+
+    int num_entry = node->entry.size();
+
+    RTNodeEntry* cur_entry;
+    for(int i = 0; i < num_entry; i++){
+        cur_entry = &(node->entry[i]);
+
+        /* Check overlap between current entry and query rectangle */
+        bool overlap = true;
+        for(int j = 0; j < n; j++){
+            if(cur_entry->dmax[j] > S->dmin[j] && S->dmax[j] > cur_entry->dmin[j]){
+                continue;
+            }
+            else{
+                overlap = false;
+                break;
+            }
+        }
+
+        if(overlap){
+            /* S1 */
+            if(cur_entry->child != NULL){
+                Search(cur_entry->child, S, out);
+            }
+            else{
+            /* S2 */
+                out.push_back(*cur_entry);
+            }
+        }
+    }
+
+}
+
 int main(int argc, char** argv){
     n = -1;
     string filename;
@@ -116,7 +155,7 @@ int main(int argc, char** argv){
     }
 
     /* Create filename */
-    filename = "rtree_dim=" + to_string(n) + ".txt";
+    filename = "RTree_dim=" + to_string(n) + "_N=" + to_string(N) + ".txt";
 
     /* Initialize M and m (Max and Min number of childrens for a node) */
     ::M = floor(4096 / (4*n+1));

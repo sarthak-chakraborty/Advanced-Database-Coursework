@@ -6,6 +6,12 @@
 
 #define N 20
 
+#define N_Trials 50 // Number of query rectangles searched
+
+/* Range of random numbers generated*/
+#define LOWER 0
+#define UPPER 20
+
 using namespace std;
 
 /* Global Variables for Max and Min number of childrens */
@@ -13,6 +19,8 @@ int M=-1, m=-1, RTNodeEntryNum=0, RTNodeNum=0;
 
 /* dimension of rectangles */
 int n;
+
+int nodes_visited;
 
 /*Wrapper for malloc checks for out of memory*/
 static void* mem_alloc(size_t size) {
@@ -102,6 +110,8 @@ void Search(RTNode* node, RTNodeEntry* S, vector<RTNodeEntry> &out){
         return;
     }
 
+    nodes_visited++;
+
     int num_entry = node->entry.size();
 
     RTNodeEntry* cur_entry;
@@ -132,6 +142,34 @@ void Search(RTNode* node, RTNodeEntry* S, vector<RTNodeEntry> &out){
         }
     }
 
+}
+
+RTNodeEntry gen_query_rect(){
+    int min_num, max_num;
+
+    RTNodeEntry query_rect;
+    query_rect.child = NULL;
+    query_rect.RTNodeEntry_num = -1;
+    
+    query_rect.dmin.resize(n);
+    query_rect.dmax.resize(n);
+
+    for(int i = 0; i < n; i++){
+        do {
+            min_num = (rand() % (UPPER - LOWER +1)) + LOWER;
+            max_num = (rand() % (UPPER - LOWER +1)) + LOWER;
+        }while(max_num < min_num);
+        query_rect.dmin[i] = min_num;
+        query_rect.dmax[i] = max_num;
+    }
+    return query_rect;
+}
+
+void printEntry(RTNodeEntry &R){
+    for(int i = 0; i < n; i++){
+        cout<<R.dmin[i]<<" "<<R.dmax[i]<<" ";
+    }
+    cout<<endl;
 }
 
 int main(int argc, char** argv){
@@ -180,6 +218,46 @@ int main(int argc, char** argv){
     ReadTree(root, fin);
 
     fin.close();
+
+
+    srand(time(0));
+    RTNodeEntry query_rect;
+
+    vector<RTNodeEntry> out;
+
+    clock_t start, end;
+    double total_time = 0, time_taken;
+    int total_nodes_visited = 0;
+
+    for(int i = 0; i < N_Trials; i++){
+        query_rect = gen_query_rect();
+        cout<<"Query Rectangle "<<i<<endl;
+        printEntry(query_rect);
+
+        nodes_visited = 0;
+
+        start = clock(); 
+        Search(root, &query_rect, out);
+        end = clock();
+
+        time_taken = double(end - start) / CLOCKS_PER_SEC;
+        total_time += time_taken;
+        cout <<"Time taken : "<< time_taken<<endl;
+
+        total_nodes_visited += nodes_visited;
+        cout<<"Number of Nodes visited : "<<nodes_visited<<endl;
+
+        cout<<"Overlapping Rectangles : "<<out.size()<<endl;
+        // for(int j = 0; j < out.size(); j++){
+        //     printEntry(out[j]);
+        // }
+        cout<<endl;
+
+        out.clear();
+    }
+
+    cout<<"Average Time Taken : "<<total_time/N_Trials<<endl;
+    cout<<"Average Number of Nodes visited : "<<total_nodes_visited/N_Trials<<endl;
 
     return 0;
 }

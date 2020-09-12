@@ -2,7 +2,7 @@
 #include <math.h>
 #include "rtree.h"
 
-#define N 500000   // N = 5 million (number of data points)
+#define N 100000   // N = 5 million (number of data points)
 // #define N 20
 #define N_Trials 50 // Number of query rectangles searched
 

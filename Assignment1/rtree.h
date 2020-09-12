@@ -7,24 +7,20 @@ using namespace std;
 
 struct RTNode;
 
-struct RTNodeList{
+struct RTNodeEntry{
    vector<int> dmin, dmax;
-   int RTNodeList_num;
+   int RTNodeEntry_num;
    struct RTNode* child;
 };
-typedef RTNodeList RTNodeList;
+typedef struct RTNodeEntry RTNodeEntry;
 
 struct RTNode{
-    vector<RTNodeList> entry;
+    vector<RTNodeEntry> entry;
     int RTNode_num;
     struct RTNode* parent;
 };
 typedef struct RTNode RTNode;
 typedef struct RTNode* RTreePtr;
 
-bool RTNewTree(RTreePtr* T, RTNodeList* list);
-bool RTSearchData(RTreePtr* T, int dim, RTNodeList **list, size_t *count);
-bool RTInsertData(RTreePtr* T, int dim, int* data);
-bool RTFreeTree(RTreePtr* T);
 
 #endif /* _RTREE_*/

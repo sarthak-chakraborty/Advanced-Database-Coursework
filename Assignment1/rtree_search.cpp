@@ -2,10 +2,8 @@
 #include <math.h>
 #include "rtree.h"
 
-//#define N 5000000   // N = 5 million (number of data points)
-
-#define N 20
-
+#define N 100000   // N = 5 million (number of data points)
+// #define N 20
 #define N_Trials 50 // Number of query rectangles searched
 
 /* Range of random numbers generated*/
@@ -16,11 +14,9 @@ using namespace std;
 
 /* Global Variables for Max and Min number of childrens */
 int M=-1, m=-1, RTNodeEntryNum=0, RTNodeNum=0;
-
-/* dimension of rectangles */
-int n;
-
+int n;  /* dimension of rectangles */
 int nodes_visited;
+
 
 /*Wrapper for malloc checks for out of memory*/
 static void* mem_alloc(size_t size) {
@@ -35,13 +31,9 @@ static void* mem_alloc(size_t size) {
 
 
 /* Read tree from a file 
-
 Each line corresponds to a node
-
 node_num  parent_node_num  num_entries  R1(rect_num, dmin[], dmax[], child_node_num)  R2(dmin[], dmax[], child_node_num)
-
 */
-
 void ReadTree(RTNode* node, ifstream &fin){
     
     if(node == NULL){
@@ -51,14 +43,16 @@ void ReadTree(RTNode* node, ifstream &fin){
     fin.seekg(ios::beg);
 
     int node_num;
+    static int c=1;
 
     /* Find line from the file corresponding to the current node */
     string line_tmp;
     istringstream line;
     
     while(getline(fin, line_tmp)){
+        cout << c++ << endl;
         line.str(line_tmp);
-        line>>node_num;
+        line >> node_num;
         if(node_num == node->RTNode_num)
             break;
     }
@@ -76,11 +70,11 @@ void ReadTree(RTNode* node, ifstream &fin){
         cur_entry->dmax.resize(n);
 
         for(int j = 0; j < n; j++){
-            line>>(cur_entry->dmin[j])>>(cur_entry->dmax[j]);
+            line >> (cur_entry->dmin[j]) >> (cur_entry->dmax[j]);
         }
         
         /* Add child node to the rectangle */
-        line>>child_node_num;
+        line >> child_node_num;
 
         if(child_node_num != -1){
             cur_entry->child = (RTNode *)mem_alloc(sizeof(RTNode));
@@ -104,7 +98,7 @@ void ReadTree(RTNode* node, ifstream &fin){
 
 }
 
-
+/* Search RTree Algorithm */
 void Search(RTNode* node, RTNodeEntry* S, vector<RTNodeEntry> &out){
     if(node == NULL){
         return;
@@ -131,18 +125,19 @@ void Search(RTNode* node, RTNodeEntry* S, vector<RTNodeEntry> &out){
         }
 
         if(overlap){
-            /* S1 */
+            /* [S1] */
             if(cur_entry->child != NULL){
                 Search(cur_entry->child, S, out);
             }
             else{
-            /* S2 */
+            /* [S2] */
                 out.push_back(*cur_entry);
             }
         }
     }
 
 }
+
 
 RTNodeEntry gen_query_rect(){
     int min_num, max_num;
@@ -165,12 +160,14 @@ RTNodeEntry gen_query_rect(){
     return query_rect;
 }
 
+
 void printEntry(RTNodeEntry &R){
     for(int i = 0; i < n; i++){
         cout<<R.dmin[i]<<" "<<R.dmax[i]<<" ";
     }
     cout<<endl;
 }
+
 
 int main(int argc, char** argv){
     n = -1;
@@ -209,20 +206,20 @@ int main(int argc, char** argv){
     
     int root_node_num;
 
-    fin>>root_node_num;    
+    fin >> root_node_num;    
 
     RTNode* root = (RTNode *)mem_alloc(sizeof(RTNode));
     root->parent = NULL;
     root->RTNode_num = root_node_num;
 
+    cout << "Reading Tree..." <<  endl;
     ReadTree(root, fin);
 
     fin.close();
-
+    cout << "Reading Complete\n" << endl;
 
     srand(time(0));
     RTNodeEntry query_rect;
-
     vector<RTNodeEntry> out;
 
     clock_t start, end;
@@ -231,7 +228,7 @@ int main(int argc, char** argv){
 
     for(int i = 0; i < N_Trials; i++){
         query_rect = gen_query_rect();
-        cout<<"Query Rectangle "<<i<<endl;
+        cout << "Query Rectangle " << i << endl;
         printEntry(query_rect);
 
         nodes_visited = 0;
@@ -242,12 +239,12 @@ int main(int argc, char** argv){
 
         time_taken = double(end - start) / CLOCKS_PER_SEC;
         total_time += time_taken;
-        cout <<"Time taken : "<< time_taken<<endl;
+        cout << "Time taken : " << time_taken << endl;
 
         total_nodes_visited += nodes_visited;
-        cout<<"Number of Nodes visited : "<<nodes_visited<<endl;
+        cout << "Number of Nodes visited : " << nodes_visited << endl;
 
-        cout<<"Overlapping Rectangles : "<<out.size()<<endl;
+        cout << "Overlapping Rectangles : " << out.size() << endl;
         // for(int j = 0; j < out.size(); j++){
         //     printEntry(out[j]);
         // }
@@ -256,8 +253,8 @@ int main(int argc, char** argv){
         out.clear();
     }
 
-    cout<<"Average Time Taken : "<<total_time/N_Trials<<endl;
-    cout<<"Average Number of Nodes visited : "<<total_nodes_visited/N_Trials<<endl;
+    cout << "Average Time Taken : " << total_time/N_Trials << endl;
+    cout << "Average Number of Nodes visited : " << total_nodes_visited/N_Trials << endl;
 
     return 0;
 }

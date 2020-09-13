@@ -33,27 +33,24 @@ static void* mem_alloc(size_t size) {
 Each line corresponds to a node
 node_num  parent_node_num  num_entries  R1(rect_num, dmin[], dmax[], child_node_num)  R2(dmin[], dmax[], child_node_num)
 */
-void ReadTree(RTNode* node, vector<string> &lines){
+void ReadTree(RTNode* node, unordered_map<int, string> &lines){
     
     if(node == NULL){
         return;
     }
 
-    int node_num;
-
     /* Find line from the file corresponding to the current node */
-    istringstream line;
-    
-    for(int i = 0; i < lines.size(); i++){
-        line.str(lines[i]);
-        line >> node_num;
-        if(node_num == node->RTNode_num)
-            break;
-    }
 
-    /* Add Rectangles to the node */
+    string line_tmp = lines[node->RTNode_num];
+    istringstream line(line_tmp);
+    
+    int node_num;
+    line >> node_num;
+
     int parent_node_num, num_entry, child_node_num;
     line >> parent_node_num >> num_entry;
+
+    /* Add Rectangles to the node */
 
     RTNodeEntry* cur_entry;
     for(int i = 0; i < num_entry; i++){
@@ -94,7 +91,7 @@ void ReadTree(RTNode* node, vector<string> &lines){
 
 
 /* Read the file and stores it in memory */
-vector<string> ReadFile(string filename){
+int ReadFile(string filename, unordered_map<int, string> &lines){
     ifstream fin(filename);
 
     if(!fin.is_open()){
@@ -102,15 +99,24 @@ vector<string> ReadFile(string filename){
         exit(0);
     }
 
-    vector<string> lines;
-    string line;
+    int root_node_num;
 
+    fin>>root_node_num;
+
+    fin.seekg(ios::beg);
+
+    string line;
+    istringstream line_tmp;
+
+    int node_num;
     while(getline(fin, line)){ 
-        lines.push_back(line);
+        line_tmp.str(line);
+        line_tmp >> node_num;
+        lines[node_num] = line;
     }
 
     fin.close();
-    return lines;
+    return root_node_num;
 }
 
 
@@ -216,14 +222,11 @@ int main(int argc, char** argv){
     ::M = floor(4096 / (4*n+1));
     ::m = floor(M/2);
 
+    unordered_map<int, string> lines;
+
     cout << "Loading File..." <<  endl;
-    vector<string> lines = ReadFile(filename);
-    cout << "Done Loading" <<  endl;
-
-    istringstream line(lines[0]);
-    int root_node_num;
-
-    line >> root_node_num;    
+    int root_node_num = ReadFile(filename, lines);
+    cout << "Done Loading" <<  endl;  
 
     RTNode* root = (RTNode *)mem_alloc(sizeof(RTNode));
     root->parent = NULL;

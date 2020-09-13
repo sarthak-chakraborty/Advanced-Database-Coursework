@@ -393,7 +393,7 @@ RTNode* Insert(const char* filename, int dim){
         /* Make new RTNodeEntry */
         RTNodeEntry* entry = (RTNodeEntry*)mem_alloc(sizeof(RTNodeEntry));
         entry->RTNodeEntry_num = ::RTNodeEntryNum++;
-        cout << "NodeENtry " << entry->RTNodeEntry_num << " for new data" << endl;
+        cout << "NodeEntry " << entry->RTNodeEntry_num << " for new data" << endl;
         entry->child = NULL;
 
         vector<int> dmin, dmax;

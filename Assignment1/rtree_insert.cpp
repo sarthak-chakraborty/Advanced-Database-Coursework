@@ -2,14 +2,14 @@
 #include <math.h>
 #include "rtree.h"
 
-#define N 100000   // N = 5 million (number of data points)
-// #define N 10
+#define N 500000   // N = 0.5 million (number of data points)
 #define MAXLINE 5000
 
 using namespace std;
 
 /* Global Variables for Max and Min number of childrens */
-int M=-1, m=-1, RTNodeEntryNum=0, RTNodeNum=0;
+int M=-1, m=-1;
+int RTNodeEntryNum=0, RTNodeNum=0;
 
 
 /*Wrapper for malloc checks for out of memory*/
@@ -92,6 +92,7 @@ vector<int> PickNext(RTNode* node1, RTNode* node2, vector<RTNodeEntry>& all_node
 
     /* Group 1 */
     for(it = (node1->entry).begin(); it < (node1->entry).end(); it++){
+        /* TODO: Can be parallelised for optimization */
         for(int idx = 0; idx < dim; idx++){
             dmin_node_curr1[idx] = min(dmin_node_curr1[idx], (it->dmin)[idx]);
             dmax_node_curr1[idx] = max(dmax_node_curr1[idx], (it->dmax)[idx]);
@@ -104,6 +105,7 @@ vector<int> PickNext(RTNode* node1, RTNode* node2, vector<RTNodeEntry>& all_node
 
     /* Group 2 */
     for(it = (node2->entry).begin(); it < (node2->entry).end(); it++){
+        /* TODO: Can be parallelised for optimization */
         for(int idx = 0; idx < dim; idx++){
             dmin_node_curr2[idx] = min(dmin_node_curr2[idx], (it->dmin)[idx]);
             dmax_node_curr2[idx] = max(dmax_node_curr2[idx], (it->dmax)[idx]);
@@ -171,13 +173,12 @@ bool QuadraticSplit(RTNode* node1, RTNode* node2, RTNodeEntry* node_entry_ptr){
     node1->entry.clear();  /* Clear the vector containing the entries, will be inserted again */
 
     vector<int> init_entries_idx = PickSeeds(all_node_entries);
-    // cout << "[PickSeeds done]" << endl;
+
     if(init_entries_idx[0] == -1 || init_entries_idx[1] == -1){
         cerr << "[ERROR] Cannot find Pick Seeds index!!" << endl;
         return false;
     }
-    
-    // cout << init_entries_idx[0] << " " << init_entries_idx[1] << endl;
+
 
     /* Creating initial two groups */
     node1->entry.push_back(all_node_entries[init_entries_idx[0]]);
@@ -188,11 +189,8 @@ bool QuadraticSplit(RTNode* node1, RTNode* node2, RTNodeEntry* node_entry_ptr){
     if(node2->entry.back().child != NULL)
         node2->entry.back().child->parent = node2;
 
-
-    // cout << all_node_entries[init_entries_idx[0]].RTNodeEntry_num << " NodeEntry is put in Node " << node1->RTNode_num << " after split" << endl;
-    // cout << all_node_entries[init_entries_idx[1]].RTNodeEntry_num << " NodeEntry is put in Node " << node2->RTNode_num << " after split" << endl;
-
-    // cout << "[Intial Groups created]" << endl;
+    cout << all_node_entries[init_entries_idx[0]].RTNodeEntry_num << " NodeEntry is put in Node " << node1->RTNode_num << " after split" << endl;
+    cout << all_node_entries[init_entries_idx[1]].RTNodeEntry_num << " NodeEntry is put in Node " << node2->RTNode_num << " after split" << endl;
 
     /* Delete corresponding elements from all_node_entries */
     all_node_entries.erase(all_node_entries.begin() + init_entries_idx[0]);
@@ -207,7 +205,6 @@ bool QuadraticSplit(RTNode* node1, RTNode* node2, RTNodeEntry* node_entry_ptr){
 
     /* [QS2] */
     while(num_entries_assigned < M+1){
-        // cout << num_entries_assigned << endl;
         /*  If one group has so few entries that all the rest must 
             be assigned to it m order for it to have the minimum
             number m, assign them and stop
@@ -217,7 +214,7 @@ bool QuadraticSplit(RTNode* node1, RTNode* node2, RTNodeEntry* node_entry_ptr){
                 node1->entry.push_back(all_node_entries[idx]);
                 if(node1->entry.back().child != NULL)
                     node1->entry.back().child->parent = node1;
-                // cout << all_node_entries[idx].RTNodeEntry_num << " NodeEntry is put in Node " << node1->RTNode_num << " after split" << endl;
+                cout << all_node_entries[idx].RTNodeEntry_num << " NodeEntry is put in Node " << node1->RTNode_num << " after split" << endl;
                 num_entries_assigned++;
             }
             all_node_entries.clear();
@@ -228,7 +225,7 @@ bool QuadraticSplit(RTNode* node1, RTNode* node2, RTNodeEntry* node_entry_ptr){
                 node2->entry.push_back(all_node_entries[idx]);
                 if(node2->entry.back().child != NULL)
                     node2->entry.back().child->parent = node2;
-                // cout << all_node_entries[idx].RTNodeEntry_num << " NodeEntry is put in Node " << node2->RTNode_num << " after split" << endl;
+                cout << all_node_entries[idx].RTNodeEntry_num << " NodeEntry is put in Node " << node2->RTNode_num << " after split" << endl;
                 num_entries_assigned++;
             }
             all_node_entries.clear();
@@ -246,21 +243,19 @@ bool QuadraticSplit(RTNode* node1, RTNode* node2, RTNodeEntry* node_entry_ptr){
             node1->entry.push_back(all_node_entries[next_entry[0]]);
             if(node1->entry.back().child != NULL)
                 node1->entry.back().child->parent = node1;
-            // cout << all_node_entries[next_entry[0]].RTNodeEntry_num << " NodeEntry is put in Node " << node1->RTNode_num << " after split" << endl;
+            cout << all_node_entries[next_entry[0]].RTNodeEntry_num << " NodeEntry is put in Node " << node1->RTNode_num << " after split" << endl;
         }
         else{
             node2->entry.push_back(all_node_entries[next_entry[0]]);
             if(node2->entry.back().child != NULL)
                 node2->entry.back().child->parent = node2;
-            // cout << all_node_entries[next_entry[0]].RTNodeEntry_num << " NodeEntry is put in Node " << node2->RTNode_num << " after split" << endl;
+            cout << all_node_entries[next_entry[0]].RTNodeEntry_num << " NodeEntry is put in Node " << node2->RTNode_num << " after split" << endl;
         }
 
         /* Delete corresponding element from all_node_entries */
         all_node_entries.erase(all_node_entries.begin() + next_entry[0]);
         num_entries_assigned++;
     }
-
-    // cout << "[Returning from Quadratic Split]" << endl;
     return true;
 }
 
@@ -286,7 +281,7 @@ vector<RTNode*> AdjustTree(RTNode* node1, RTNode* node2, int dim){
             vector<int> dmin_node(dim, INT_MAX), dmax_node(dim, INT_MIN);
             vector<RTNodeEntry>::iterator it1;
             for(it1 = (node1->entry).begin(); it1 < (node1->entry).end(); it1++){
-                // TODO: Better Implementation
+                /* TODO: Can be parallelised for optimization */
                 for(int idx = 0; idx < dmin_node.size(); idx++){
                     dmin_node[idx] = min(dmin_node[idx], (it1->dmin)[idx]);
                     dmax_node[idx] = max(dmax_node[idx], (it1->dmax)[idx]);
@@ -304,7 +299,7 @@ vector<RTNode*> AdjustTree(RTNode* node1, RTNode* node2, int dim){
         vector<int> dmin_node(dim, INT_MAX), dmax_node(dim, INT_MIN);
         vector<RTNodeEntry>::iterator it;
         for(it = (node2->entry).begin(); it < (node2->entry).end(); it++){
-            // TODO: Better Implementation
+            /* TODO: Can be parallelised for optimization */
             for(int idx = 0; idx < dmin_node.size(); idx++){
                 dmin_node[idx] = min(dmin_node[idx], (it->dmin)[idx]);
                 dmax_node[idx] = max(dmax_node[idx], (it->dmax)[idx]);
@@ -321,19 +316,17 @@ vector<RTNode*> AdjustTree(RTNode* node1, RTNode* node2, int dim){
         /* If there is left in parent node, make an entry */
         if((P->entry).size() < ::M){
             (P->entry).push_back(*new_node_entry);
-            // cout << new_node_entry->RTNodeEntry_num << " NodeEntry is put in Node " << P->RTNode_num << " while adjusting" << endl;
+            cout << new_node_entry->RTNodeEntry_num << " NodeEntry is put in Node " << P->RTNode_num << " while adjusting" << endl;
             PP = NULL;
         }
         else{
             PP = (RTNode *)mem_alloc(sizeof(RTNode));
-            // cout << "Node num: " << ::RTNodeNum << endl;
             PP->RTNode_num = ::RTNodeNum++;
-            // cout << "New Node " << PP->RTNode_num << " is getting created while adjusting" << endl;
+            cout << "New Node " << PP->RTNode_num << " is getting created while adjusting" << endl;
             PP->parent = P->parent;
             QuadraticSplit(P, PP, new_node_entry);
         }
     }
-
     return AdjustTree(P, PP, dim);
 }
 
@@ -344,7 +337,6 @@ RTNode* ChooseLeaf(RTNode* node, RTNodeEntry* E){
 
     /* [CL2] */
     if(node == NULL || (node->entry[0]).child == NULL){
-        // cout << "Null/Leaf node" << endl;
         return node;
     }
 
@@ -378,14 +370,14 @@ RTNode* ChooseLeaf(RTNode* node, RTNodeEntry* E){
             F = cur_entry;
         }
     }
-
-    // cout << "Minimum area increase for Choose Leaf is for NodeEntry " << F->RTNodeEntry_num << endl;
+    cout << "Minimum area increase for Choose Leaf is for NodeEntry " << F->RTNodeEntry_num << endl;
+    
     /* [CL4] */
     return ChooseLeaf(F->child, E);
-
 }
 
 
+/* Insert Data into R-Tree */
 RTNode* Insert(const char* filename, int dim){
     FILE* fin = fopen(filename, "r");
     if(fin == NULL){
@@ -395,15 +387,13 @@ RTNode* Insert(const char* filename, int dim){
     char* line = new char[MAXLINE]; 
     RTNode* root = NULL;
     
-    int c = 1;
     while(fgets(line, MAXLINE, fin)){
-        cout << c++ << endl;
-        // cout << "[LINE]->" << line << endl;
+        cout << endl;
 
         /* Make new RTNodeEntry */
         RTNodeEntry* entry = (RTNodeEntry*)mem_alloc(sizeof(RTNodeEntry));
         entry->RTNodeEntry_num = ::RTNodeEntryNum++;
-        // cout << "NodeENtry " << entry->RTNodeEntry_num << " for new data" << endl;
+        cout << "NodeENtry " << entry->RTNodeEntry_num << " for new data" << endl;
         entry->child = NULL;
 
         vector<int> dmin, dmax;
@@ -427,47 +417,42 @@ RTNode* Insert(const char* filename, int dim){
 
         /* [I1] */
         RTNode* entry_node = ChooseLeaf(root, entry);
+        cout << "Node " << entry_node->RTNode_num << " is chosen as leaf" << endl;
 
         if(entry_node == NULL){
-            // cout << "NULL entry node" << endl;
             entry_node = (RTNode*)mem_alloc(sizeof(RTNode));
-            // cout << "Node num " << ::RTNodeNum << " is current root" << endl;
+            cout << "Node num " << ::RTNodeNum << " is current root" << endl;
             entry_node->RTNode_num = ::RTNodeNum++;
             entry_node->parent = NULL;
             root = entry_node;
         }
-
-        // cout << "Node " << entry_node->RTNode_num << " is chosen as leaf" << endl;
+        
         /* [I2] */
         RTNode* new_node = NULL;
         if(entry_node->entry.size() < ::M){
-            // cout << entry->RTNodeEntry_num << " NodeEntry in Node " << entry_node->RTNode_num << " originally" << endl;
+            cout << entry->RTNodeEntry_num << " NodeEntry in Node " << entry_node->RTNode_num << " originally" << endl;
             entry_node->entry.push_back(*entry);
             vector<RTNode*> split_nodes = AdjustTree(entry_node, NULL, dim);
         }
         else{
             // cout << "New Node to be created" << endl;
             new_node = (RTNode*)mem_alloc(sizeof(RTNode));
-            // cout << "Node num: " << ::RTNodeNum << endl;
             new_node->RTNode_num = ::RTNodeNum++;
-            // cout << "New Node " << new_node->RTNode_num << " is getting created during Insertion" << endl;
+            cout << "New Node " << new_node->RTNode_num << " is getting created during Insertion" << endl;
             new_node->parent = entry_node->parent;
 
-            // cout << "Going to Split" << endl;
             bool split = QuadraticSplit(entry_node, new_node, entry);
-            // cout << "[Split Result] " << noboolalpha << split << " == " << boolalpha << split << endl;
+
             /* [I3] */
             vector<RTNode*> split_nodes = AdjustTree(entry_node, new_node, dim);
 
             /* [I4] */
             if(split_nodes[1] != NULL && split_nodes[0]->parent == NULL && split_nodes[1]->parent == NULL){
-                // cout << "\n[New root is getting created]" << endl;
                 /* Create new root node */
                 RTNode* new_root = (RTNode *)mem_alloc(sizeof(RTNode));
                 new_root->parent = NULL;
-                // cout << "Node Num: " << ::RTNodeNum << endl;
                 new_root->RTNode_num = ::RTNodeNum++;
-                // cout << "New Root creation necessary" << endl;
+                cout << "New Root creation necessary" << endl;
 
                 /* Create 2 RTNodeEntry to  the new root */
                 /* Node1 */
@@ -506,14 +491,13 @@ RTNode* Insert(const char* filename, int dim){
                 new_root->entry.push_back(*entry1);
                 new_root->entry.push_back(*entry2);
 
-                // cout << "NodeEntry" << entry1->RTNodeEntry_num << " and " << entry2->RTNodeEntry_num << " pointing Node " << entry1->child->RTNode_num << " and " << entry2->child->RTNode_num << " in New Root Node " << new_root->RTNode_num << endl;
+                cout << "NodeEntry" << entry1->RTNodeEntry_num << " and " << entry2->RTNodeEntry_num << " pointing Node " << entry1->child->RTNode_num << " and " << entry2->child->RTNode_num << " in New Root Node " << new_root->RTNode_num << endl;
 
                 split_nodes[0]->parent = new_root;
                 split_nodes[1]->parent = new_root;
 
                 root = new_root;
-
-                // cout << "Node " << root->RTNode_num << " is new root" << endl;
+                cout << "Node " << root->RTNode_num << " is new root" << endl;
             }
         }
     }
@@ -610,10 +594,8 @@ int main(int argc, char** argv){
 
     /* Initialize M and m (Max and Min number of childrens for a node) */
     ::M = floor(4096 / (4*n+1));
-    // ::M = 2;
     ::m = floor(M/2);
 
-    // cout << "[Insertion function called]" << endl;
     RTNode* root_node = Insert(in_filename.c_str(), n);
 
     WriteTree(root_node, fopen(out_filename.c_str(), "w"));

@@ -2,8 +2,7 @@
 #include <math.h>
 #include "rtree.h"
 
-#define N 100000   // N = 5 million (number of data points)
-// #define N 20
+#define N 500000   // N = 0.5 million (number of data points)
 #define N_Trials 50 // Number of query rectangles searched
 
 /* Range of random numbers generated*/
@@ -93,6 +92,8 @@ void ReadTree(RTNode* node, vector<string> &lines){
 
 }
 
+
+/* Read the file and stores it in memory */
 vector<string> ReadFile(string filename){
     ifstream fin(filename);
 
@@ -112,7 +113,11 @@ vector<string> ReadFile(string filename){
     return lines;
 }
 
-/* Search RTree Algorithm */
+
+
+/* Search RTree Algorithm
+   Returns all rectangles that overlaps with the query rectangle
+*/
 void Search(RTNode* node, RTNodeEntry* S, vector<RTNodeEntry> &out){
     if(node == NULL){
         return;
@@ -153,6 +158,7 @@ void Search(RTNode* node, RTNodeEntry* S, vector<RTNodeEntry> &out){
 }
 
 
+/* Generates a query rectangle to be searched */
 RTNodeEntry gen_query_rect(){
     int min_num, max_num;
 
@@ -177,9 +183,9 @@ RTNodeEntry gen_query_rect(){
 
 void printEntry(RTNodeEntry &R){
     for(int i = 0; i < n; i++){
-        cout<<R.dmin[i]<<" "<<R.dmax[i]<<" ";
+        cout << R.dmin[i] << " " << R.dmax[i] << " ";
     }
-    cout<<endl;
+    cout << endl;
 }
 
 
@@ -239,7 +245,6 @@ int main(int argc, char** argv){
     for(int i = 0; i < N_Trials; i++){
         query_rect = gen_query_rect();
         cout << "Query Rectangle " << i << endl;
-        //printEntry(query_rect);
 
         nodes_visited = 0;
 
@@ -255,9 +260,6 @@ int main(int argc, char** argv){
         cout << "Number of Nodes visited : " << nodes_visited << endl;
 
         cout << "Overlapping Rectangles : " << out.size() << endl;
-        // for(int j = 0; j < out.size(); j++){
-        //     printEntry(out[j]);
-        // }
         cout<<endl;
 
         out.clear();

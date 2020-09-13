@@ -416,8 +416,7 @@ RTNode* Insert(const char* filename, int dim){
         entry->dmax.assign(dmax.begin(), dmax.end());
 
         /* [I1] */
-        RTNode* entry_node = ChooseLeaf(root, entry);
-        cout << "Node " << entry_node->RTNode_num << " is chosen as leaf" << endl;
+        RTNode* entry_node = ChooseLeaf(root, entry);      
 
         if(entry_node == NULL){
             entry_node = (RTNode*)mem_alloc(sizeof(RTNode));
@@ -426,6 +425,8 @@ RTNode* Insert(const char* filename, int dim){
             entry_node->parent = NULL;
             root = entry_node;
         }
+
+        cout << "Node " << entry_node->RTNode_num << " is chosen as leaf" << endl;
         
         /* [I2] */
         RTNode* new_node = NULL;

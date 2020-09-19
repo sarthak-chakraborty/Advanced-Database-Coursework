@@ -23,4 +23,9 @@ typedef struct RTNode RTNode;
 typedef struct RTNode* RTreePtr;
 
 
+typedef struct{
+    RTNodeEntry* object;
+    int dist;
+}NearestN;
+
 #endif /* _RTREE_*/

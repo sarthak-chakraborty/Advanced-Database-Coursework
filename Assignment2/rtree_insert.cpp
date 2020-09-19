@@ -594,7 +594,7 @@ int main(int argc, char** argv){
 
 
     /* Initialize M and m (Max and Min number of childrens for a node) */
-    ::M = floor(4096 / (4*n+1));
+    ::M = floor(4096 / 4*(2*n+1));
     ::m = floor(M/2);
 
     RTNode* root_node = Insert(in_filename.c_str(), n);

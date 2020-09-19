@@ -134,15 +134,63 @@ vector<int> gen_query_point(){
 
 
 int mindist(vector<int> point, RTNodeEntry* R){
+    int min_dist = 0;
 
+    for(int i = 0; i < point.size(); i++){
+        if(point[i] < R->dmin[i]){
+            min_dist += pow(abs(point[i] - R->dmin[i]), 2);
+        }
+        else if(point[i] > R->dmax[i]){
+            min_dist += pow(abs(point[i] - R->dmax[i]), 2);
+        }
+    }
+
+    return min_dist;
 }
+
 
 int minmaxdist(vector<int> point, RTNodeEntry* R){
-    
+    int minmax_dist = INT_MAX;
+
+    int S = 0;
+    for(int i = 0; i < point.size(); i++){
+        if(point[i] >= (float)(R->dmin[i] + R->dmax[i]) / 2)
+            S += pow(abs(point[i] - R->dmin[i]), 2);
+        else
+            S += pow(abs(point[i] - R->dmax[i]), 2);
+    }
+
+    for(int i = 0; i < point.size(); i++){
+        int rm, rM;
+
+        if(point[i] >= (float)(R->dmin[i] + R->dmax[i]) / 2)
+            rM = R->dmin[i];
+        else
+            rM = R->dmax[i];
+
+        if(point[i] <= (float)(R->dmin[i] + R->dmax[i]) / 2)
+            rm = R->dmin[i];
+        else
+            rm = R->dmax[i];
+
+        dist = S - pow(abs(point[i] - rM), 2) + pow(abs(point[i], - rm), 2);
+
+        if(dist < minmax_dist)
+            minmax_dist = dist;
+    }
+
+    return minmax_dist;
 }
 
-int objdist(vector<int> point, vector<int> object){
 
+int objdist(vector<int> point, vector<int> object){
+    int dist = 0;
+
+    for(int i = 0; i < point.size(); i++){
+        dist += pow((point[i] - object[i]), 2);
+    }
+
+    return dist;
 }
 
 /* define order for priority queue */
@@ -261,7 +309,7 @@ int main(int argc, char** argv){
     filename = "RTree_dim=" + to_string(n) + "_N=" + to_string(N) + ".txt";
 
     /* Initialize M and m (Max and Min number of childrens for a node) */
-    ::M = floor(4096 / (4*n+1));
+    ::M = floor(4096 / 4*(2*n+1));
     ::m = floor(M/2);
 
     unordered_map<int, string> lines;

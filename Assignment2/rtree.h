@@ -20,14 +20,11 @@ struct RTNode{
     struct RTNode* parent;
 };
 typedef struct RTNode RTNode;
-typedef struct RTNode* RTreePtr;
-
 
 typedef struct{
     RTNodeEntry* object;
     int dist;
 }NearestN;
-
 
 typedef struct{
     RTNodeEntry* entry;

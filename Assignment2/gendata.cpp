@@ -4,23 +4,20 @@
 
 /* Range of random numbers generated*/
 #define LOWER 0
-#define UPPER 20
+#define UPPER 30
 
 using namespace std;
 
 
 void gen_data(const int n, const char* filename){
-    int min_num, max_num;
+    int num;
     FILE* fout = fopen(filename, "w");
     srand(time(0));
 
     for(int i=0; i < N; i++){
         for(int dim=0; dim < n; dim++){
-            do {
-                min_num = (rand() % (UPPER - LOWER +1)) + LOWER;
-                max_num = (rand() % (UPPER - LOWER +1)) + LOWER;
-            }while(max_num < min_num);
-            fprintf(fout, "%d %d ", min_num, max_num);  
+            num = (rand() % (UPPER - LOWER +1)) + LOWER;
+            fprintf(fout, "%d %d ", num, num);  
         }
         fprintf(fout, "\n");
     }

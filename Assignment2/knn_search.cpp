@@ -16,6 +16,7 @@ int M=-1, m=-1, RTNodeEntryNum=0, RTNodeNum=0;
 int n;  /* dimension of rectangles */
 int nodes_visited;
 
+int k;  /* Number of nearest neighbors */
 
 /*Wrapper for malloc checks for out of memory*/
 static void* mem_alloc(size_t size) {
@@ -144,27 +145,114 @@ int objdist(vector<int> point, vector<int> object){
 
 }
 
-vector<NearestN> Search(RTNode* root, vector<int> point){
+/* define order for priority queue */
+struct CompareNNeighbor{
+    bool operator()(NearestN const &N1, NearestN const &N2){
+        return N1.dist < N2.dist;
+    }
+};
 
+/* define order for Active Branch List */
+bool sortbyminmaxdist(const ABLEntry &N1, const ABLEntry &N2){
+    if(N1.minmaxdist != N2.minmaxdist)
+        return N1.minmaxdist < N2.minmaxdist;
+
+    return N1.mindist < N2.mindist;
+}
+
+
+/* kNN Search - Returns k Nearest Neighbors - objects and distances */
+void kNN_Search(RTNode* node, vector<int> &point, priority_queue<NearestN, vector<NearestN>, CompareNNeighbor> &nearest){
+    if(node == NULL){
+        return;
+    }
+
+    nodes_visited++;
+
+    int num_entry = node->entry.size();
+    int dist;
+
+    NearestN cur_neighbor;
+    RTNodeEntry* cur_entry;
+
+    /* Leaf Node */
+    if((node->entry[0]).child == NULL){        
+        for(int i = 0; i < num_entry; i++){
+            cur_entry = &(node->entry[i]);
+            dist = objdist(point, cur_entry->dmin);
+
+            cur_neighbor.object = cur_entry;
+            cur_neighbor.dist = dist;
+
+            /* less than k nearest neighbors found */
+            if(nearest.size() < k){
+                nearest.push(cur_neighbor);
+            }
+            /* current neighbor is nearer than furthest nearest neighbor */
+            else if(dist < nearest.top().dist){
+                nearest.pop();
+                nearest.push(cur_neighbor);
+            }
+        }
+        return;
+    }
+
+    /* Non-leaf Node */
+
+    vector<ABLEntry> ABL(num_entry);
+    ABLEntry cur_ablentry;
+
+    /* Calculate MINDIST and MINMAXDIST for all entries in the node */
+    for(int i = 0; i < num_entry; i++){
+        cur_entry = &(node->entry[i]);
+
+        cur_ablentry.entry = cur_entry;
+        cur_ablentry.mindist = mindist(point, cur_entry);
+        cur_ablentry.minmaxdist = minmaxdist(point, cur_entry);
+    }
+
+    sort(ABL.begin(), ABL.end(), sortbyminmaxdist);
+
+    for(int i = 0; i < num_entry; i++){
+        
+        /* Pruning Strategy 1 */
+        if(i >= k && ABL[i].mindist > ABL[0].minmaxdist){
+            continue;
+        }
+        /* Pruning Strategy 3 */
+        else if(nearest.size() >= k && ABL[i].mindist > nearest.top().dist){
+            continue;
+        }
+        else{
+            kNN_Search((ABL[i].entry)->child, point, nearest);
+        }
+    }
 }
 
 
 int main(int argc, char** argv){
     n = -1;
+    k = 1;
     string filename;
 
     /* Sanity Check for CLI*/
-    if(argc < 2){
-        cerr << "[Error] Enter the number of dimensions to generate data!!" << endl;
+    if(argc < 3){
+        cerr << "[Error] Enter the number of dimensions and k!!" << endl;
         exit(0);
     }
-    else if(argc > 2){
+    else if(argc > 3){
         cerr << "[Error] Extra command line arguments added!!" << endl;
         exit(0);
     }
 
     n = atoi(argv[1]);
     if(n == 0 && strcmp(argv[1], "0")){
+        cerr << "[Error] Integer command line argument expected!!" << endl;
+        exit(0);
+    }
+
+    k = atoi(argv[1]);
+    if(k == 0 && strcmp(argv[1], "0")){
         cerr << "[Error] Integer command line argument expected!!" << endl;
         exit(0);
     }
@@ -193,7 +281,6 @@ int main(int argc, char** argv){
 
     srand(time(0));
     vector<int> query_point(n);
-    vector<RTNodeEntry> out;
 
     clock_t start, end;
     double total_time = 0, time_taken;
@@ -205,8 +292,10 @@ int main(int argc, char** argv){
 
         nodes_visited = 0;
 
+        priority_queue<NearestN, vector<NearestN>, CompareNNeighbor> nearest;
+
         start = clock(); 
-        //Search(root, &query_rect, out);
+        kNN_Search(root, query_point, nearest);
         end = clock();
 
         time_taken = double(end - start) / CLOCKS_PER_SEC;
@@ -216,10 +305,8 @@ int main(int argc, char** argv){
         total_nodes_visited += nodes_visited;
         cout << "Number of Nodes visited : " << nodes_visited << endl;
 
-        cout << "Overlapping Rectangles : " << out.size() << endl;
         cout<<endl;
 
-        out.clear();
     }
 
     cout << "Average Time Taken : " << total_time/N_Trials << endl;

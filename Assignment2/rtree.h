@@ -28,4 +28,12 @@ typedef struct{
     int dist;
 }NearestN;
 
+
+typedef struct{
+    RTNodeEntry* entry;
+    int mindist;
+    int minmaxdist;
+}ABLEntry;
+
+
 #endif /* _RTREE_*/

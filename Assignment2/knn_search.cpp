@@ -2,7 +2,8 @@
 #include <math.h>
 #include "rtree.h"
 
-#define N 500000   // N = 0.5 million (number of data points)
+// #define N 500000   // N = 0.5 million (number of data points)
+#define N 5
 #define N_Trials 50 // Number of query rectangles searched
 
 /* Range of random numbers generated*/
@@ -173,7 +174,7 @@ int minmaxdist(vector<int> point, RTNodeEntry* R){
         else
             rm = R->dmax[i];
 
-        dist = S - pow(abs(point[i] - rM), 2) + pow(abs(point[i], - rm), 2);
+        int dist = S - pow(abs(point[i] - rM), 2) + pow(abs(point[i] - rm), 2);
 
         if(dist < minmax_dist)
             minmax_dist = dist;
@@ -309,7 +310,8 @@ int main(int argc, char** argv){
     filename = "RTree_dim=" + to_string(n) + "_N=" + to_string(N) + ".txt";
 
     /* Initialize M and m (Max and Min number of childrens for a node) */
-    ::M = floor(4096 / 4*(2*n+1));
+    // ::M = floor(4096 / 4*(2*n+1));
+    ::M = 2;
     ::m = floor(M/2);
 
     unordered_map<int, string> lines;

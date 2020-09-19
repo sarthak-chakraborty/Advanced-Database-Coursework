@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 
 #define N 500000   // N = 0.5 million (number of data points)
-
 /* Range of random numbers generated*/
 #define LOWER 0
 #define UPPER 30

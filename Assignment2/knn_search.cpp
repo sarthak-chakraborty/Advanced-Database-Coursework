@@ -310,7 +310,7 @@ int main(int argc, char** argv){
     filename = "RTree_dim=" + to_string(n) + "_N=" + to_string(N) + ".txt";
 
     /* Initialize M and m (Max and Min number of childrens for a node) */
-    ::M = floor(4096 / 4*(2*n+1));
+    ::M = floor(4096 / (4*n+1));
     ::m = floor(M/2);
 
     unordered_map<int, string> lines;

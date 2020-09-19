@@ -224,7 +224,7 @@ void kNN_Search(RTNode* node, vector<int> &point, priority_queue<NearestN, vecto
     RTNodeEntry* cur_entry;
 
     /* Leaf Node */
-    if((node->entry[0]).child == NULL){        
+    if(node->entry[0].child == NULL){        
         for(int i = 0; i < num_entry; i++){
             cur_entry = &(node->entry[i]);
             dist = objdist(point, cur_entry->dmin);
@@ -257,18 +257,19 @@ void kNN_Search(RTNode* node, vector<int> &point, priority_queue<NearestN, vecto
         cur_ablentry.entry = cur_entry;
         cur_ablentry.mindist = mindist(point, cur_entry);
         cur_ablentry.minmaxdist = minmaxdist(point, cur_entry);
+
+        ABL[i] = cur_ablentry;
     }
 
     sort(ABL.begin(), ABL.end(), sortbyminmaxdist);
 
     for(int i = 0; i < num_entry; i++){
-        
         /* Pruning Strategy 1 */
         if(i >= k && ABL[i].mindist > ABL[0].minmaxdist){
             continue;
         }
         /* Pruning Strategy 3 */
-        else if(nearest.size() >= k && ABL[i].mindist > nearest.top().dist){
+        else if(nearest.size() >= k && ABL[i].mindist > nearest.top().dist){ 
             continue;
         }
         else{
@@ -345,6 +346,7 @@ int main(int argc, char** argv){
         start = clock(); 
         kNN_Search(root, query_point, nearest);
         end = clock();
+
 
         time_taken = double(end - start) / CLOCKS_PER_SEC;
         total_time += time_taken;

@@ -251,8 +251,8 @@ int main(int argc, char** argv){
         exit(0);
     }
 
-    k = atoi(argv[1]);
-    if(k == 0 && strcmp(argv[1], "0")){
+    k = atoi(argv[2]);
+    if(k == 0 && strcmp(argv[2], "0")){
         cerr << "[Error] Integer command line argument expected!!" << endl;
         exit(0);
     }

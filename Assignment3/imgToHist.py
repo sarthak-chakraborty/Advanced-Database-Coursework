@@ -1,3 +1,8 @@
+"""
+Converts each image into its histogram representation
+and saves them in the same directory
+"""
+
 import numpy as np
 from PIL import Image, ImageOps
 import sys
@@ -18,10 +23,11 @@ for article_folder in os.listdir(scrapped_path):
         hist = img_grayscale.histogram()
 
         fd_out = open(os.path.join(image_dirpath, image[:-4]+'.txt'), 'w')
-        for num in hist:
-            if num == hist[-1]:
-                fd_out.write(str(num))
+        for i in range(len(hist)):
+            if i == len(hist) - 1:
+                fd_out.write(str(hist[i]))
             else:
-                fd_out.write("{} ".format(num))
+                fd_out.write("{} ".format(hist[i]))
+
 
         fd_out.close()

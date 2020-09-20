@@ -18,6 +18,7 @@ int nodes_visited;
 
 int k;  /* Number of nearest neighbors */
 
+
 /*Wrapper for malloc checks for out of memory*/
 static void* mem_alloc(size_t size) {
    void* mem = malloc(size);
@@ -52,7 +53,6 @@ void ReadTree(RTNode* node, unordered_map<int, string> &lines){
     line >> parent_node_num >> num_entry;
 
     /* Add Rectangles to the node */
-
     RTNodeEntry* cur_entry;
     for(int i = 0; i < num_entry; i++){
         cur_entry = (RTNodeEntry *)mem_alloc(sizeof(RTNodeEntry));
@@ -133,6 +133,8 @@ vector<int> gen_query_point(){
 }
 
 
+
+/* Calculated MINDIST of a point to an MBR R */
 int mindist(vector<int> point, RTNodeEntry* R){
     int min_dist = 0;
 
@@ -149,6 +151,8 @@ int mindist(vector<int> point, RTNodeEntry* R){
 }
 
 
+
+/* Calculates MINMAXDIST of a point to an MBR R */
 int minmaxdist(vector<int> point, RTNodeEntry* R){
     int minmax_dist = INT_MAX;
 
@@ -183,6 +187,8 @@ int minmaxdist(vector<int> point, RTNodeEntry* R){
 }
 
 
+
+/* Calculates the actual Object Distance of the query point to an object in R-Tree */
 int objdist(vector<int> point, vector<int> object){
     int dist = 0;
 
@@ -193,12 +199,16 @@ int objdist(vector<int> point, vector<int> object){
     return dist;
 }
 
+
+
 /* define order for priority queue */
 struct CompareNNeighbor{
     bool operator()(NearestN const &N1, NearestN const &N2){
         return N1.dist < N2.dist;
     }
 };
+
+
 
 /* define order for Active Branch List */
 bool sortbyminmaxdist(const ABLEntry &N1, const ABLEntry &N2){
@@ -207,6 +217,7 @@ bool sortbyminmaxdist(const ABLEntry &N1, const ABLEntry &N2){
 
     return N1.mindist < N2.mindist;
 }
+
 
 
 /* kNN Search - Returns k Nearest Neighbors - objects and distances */
@@ -246,7 +257,6 @@ void kNN_Search(RTNode* node, vector<int> &point, priority_queue<NearestN, vecto
     }
 
     /* Non-leaf Node */
-
     vector<ABLEntry> ABL(num_entry);
     ABLEntry cur_ablentry;
 
@@ -269,7 +279,7 @@ void kNN_Search(RTNode* node, vector<int> &point, priority_queue<NearestN, vecto
             continue;
         }
         /* Pruning Strategy 3 */
-        else if(nearest.size() >= k && ABL[i].mindist > nearest.top().dist){ 
+        if(nearest.size() >= k && ABL[i].mindist > nearest.top().dist){ 
             continue;
         }
         else{

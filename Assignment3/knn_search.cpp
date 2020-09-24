@@ -131,9 +131,12 @@ vector<int> gen_query_point(){
      while(fgets(line, 5000, fin)){
         char* token = strtok(line, " ");
 
+        int c = 0;
         while(token != NULL){
         if(atoi(token) != 0 || !strcmp(token, "0")){
-            query_point.push_back(atoi(token));
+            if(c%2 == 0)
+                query_point.push_back(atoi(token));
+            c++;
         }
         token = strtok(NULL, " ");
         }
@@ -150,10 +153,10 @@ ll mindist(vector<int> point, RTNodeEntry* R){
 
     for(int i = 0; i < point.size(); i++){
         if(point[i] < R->dmin[i]){
-            min_dist += abs(point[i] - R->dmin[i]);
+            min_dist += pow((point[i] - R->dmin[i]), 2);
         }
         else if(point[i] > R->dmax[i]){
-            min_dist += abs(point[i] - R->dmax[i]);
+            min_dist += pow((point[i] - R->dmax[i]), 2);
         }
     }
 
@@ -164,14 +167,14 @@ ll mindist(vector<int> point, RTNodeEntry* R){
 
 /* Calculates MINMAXDIST of a point to an MBR R */
 ll minmaxdist(vector<int> point, RTNodeEntry* R){
-    ll minmax_dist = LLONG_MAX;
+    ll minmax_dist = -1;
 
     ll S = 0;
     for(int i = 0; i < point.size(); i++){
         if(point[i] >= (float)(R->dmin[i] + R->dmax[i]) / 2)
-            S += abs(point[i] - R->dmin[i]);
+            S += pow((point[i] - R->dmin[i]), 2);
         else
-            S += abs(point[i] - R->dmax[i]);
+            S += pow((point[i] - R->dmax[i]), 2);
     }
 
     for(int i = 0; i < point.size(); i++){
@@ -187,9 +190,9 @@ ll minmaxdist(vector<int> point, RTNodeEntry* R){
         else
             rm = R->dmax[i];
 
-        ll dist = S - abs(point[i] - rM) + abs(point[i] - rm);
+        ll dist = S - pow((point[i] - rM), 2) + pow((point[i] - rm), 2);
 
-        if(dist < minmax_dist)
+        if(minmax_dist == -1 || dist < minmax_dist)
             minmax_dist = dist;
     }
 
@@ -202,7 +205,7 @@ ll minmaxdist(vector<int> point, RTNodeEntry* R){
 ll objdist(vector<int> point, vector<int> object){
     ll dist = 0;
     for(int i = 0; i < point.size(); i++){
-        dist += abs(point[i] - object[i]);
+        dist += pow((point[i] - object[i]), 2);
     }
 
     return dist;
@@ -236,17 +239,15 @@ void kNN_Search(RTNode* node, vector<int> &point, priority_queue<NearestN, vecto
     nodes_visited++;
 
     int num_entry = node->entry.size();
-    ll dist;
 
-    NearestN cur_neighbor;
-    RTNodeEntry* cur_entry;
-
+    
     /* Leaf Node */
     if(node->entry[0].child == NULL){        
         for(int i = 0; i < num_entry; i++){
-            cur_entry = &(node->entry[i]);
-            dist = objdist(point, cur_entry->dmin);
+            RTNodeEntry* cur_entry = &(node->entry[i]);
+            ll dist = objdist(point, cur_entry->dmin);
 
+            NearestN cur_neighbor;
             cur_neighbor.object = cur_entry;
             cur_neighbor.dist = dist;
 
@@ -264,18 +265,18 @@ void kNN_Search(RTNode* node, vector<int> &point, priority_queue<NearestN, vecto
     }
 
     /* Non-leaf Node */
-    vector<ABLEntry> ABL(num_entry);
-    ABLEntry cur_ablentry;
+    vector<ABLEntry> ABL;
 
     /* Calculate MINDIST and MINMAXDIST for all entries in the node */
     for(int i = 0; i < num_entry; i++){
-        cur_entry = &(node->entry[i]);
+        RTNodeEntry* cur_entry = &(node->entry[i]);
 
+        ABLEntry cur_ablentry;
         cur_ablentry.entry = cur_entry;
         cur_ablentry.mindist = mindist(point, cur_entry);
         cur_ablentry.minmaxdist = minmaxdist(point, cur_entry);
 
-        ABL[i] = cur_ablentry;
+        ABL.push_back(cur_ablentry);
     }
 
     sort(ABL.begin(), ABL.end(), sortbyminmaxdist);
@@ -290,7 +291,7 @@ void kNN_Search(RTNode* node, vector<int> &point, priority_queue<NearestN, vecto
             continue;
         }
         else{
-            kNN_Search((ABL[i].entry)->child, point, nearest);
+            kNN_Search(ABL[i].entry->child, point, nearest);
         }
     }
 }

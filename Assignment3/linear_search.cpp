@@ -15,7 +15,7 @@ ll objdist(vector<int> point, vector<int> object){
     ll dist = 0;
 
     for(int i = 0; i < point.size(); i++){
-        dist += abs(point[i] - object[i]);
+        dist += pow((point[i] - object[i]), 2);
     }
 
     return dist;
@@ -48,9 +48,12 @@ vector<int> gen_query_point(const char* filename){
      while(fgets(line, 5000, fin)){
         char* token = strtok(line, " ");
 
+        int c = 0;
         while(token != NULL){
         if(atoi(token) != 0 || !strcmp(token, "0")){
-            query_point.push_back(atoi(token));
+            if(c%2 == 0)
+                query_point.push_back(atoi(token));
+            c++;
         }
         token = strtok(NULL, " ");
         }

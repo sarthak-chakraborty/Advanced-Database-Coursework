@@ -339,7 +339,7 @@ int main(int argc, char** argv){
     lines.clear();
 
     srand(time(0));
-    vector<int> query_point(DIM);
+    vector<int> query_point;
 
     clock_t start, end;
     double total_time = 0, time_taken;

@@ -145,15 +145,15 @@ vector<int> gen_query_point(){
 
 
 /* Calculated MINDIST of a point to an MBR R */
-int mindist(vector<int> point, RTNodeEntry* R){
-    int min_dist = 0;
+ll mindist(vector<int> point, RTNodeEntry* R){
+    ll min_dist = 0;
 
     for(int i = 0; i < point.size(); i++){
         if(point[i] < R->dmin[i]){
-            min_dist += pow(abs(point[i] - R->dmin[i]), 2);
+            min_dist += abs(point[i] - R->dmin[i]);
         }
         else if(point[i] > R->dmax[i]){
-            min_dist += pow(abs(point[i] - R->dmax[i]), 2);
+            min_dist += abs(point[i] - R->dmax[i]);
         }
     }
 
@@ -163,15 +163,15 @@ int mindist(vector<int> point, RTNodeEntry* R){
 
 
 /* Calculates MINMAXDIST of a point to an MBR R */
-int minmaxdist(vector<int> point, RTNodeEntry* R){
-    int minmax_dist = INT_MAX;
+ll minmaxdist(vector<int> point, RTNodeEntry* R){
+    ll minmax_dist = LLONG_MAX;
 
-    int S = 0;
+    ll S = 0;
     for(int i = 0; i < point.size(); i++){
         if(point[i] >= (float)(R->dmin[i] + R->dmax[i]) / 2)
-            S += pow(abs(point[i] - R->dmin[i]), 2);
+            S += abs(point[i] - R->dmin[i]);
         else
-            S += pow(abs(point[i] - R->dmax[i]), 2);
+            S += abs(point[i] - R->dmax[i]);
     }
 
     for(int i = 0; i < point.size(); i++){
@@ -187,7 +187,7 @@ int minmaxdist(vector<int> point, RTNodeEntry* R){
         else
             rm = R->dmax[i];
 
-        int dist = S - pow(abs(point[i] - rM), 2) + pow(abs(point[i] - rm), 2);
+        ll dist = S - abs(point[i] - rM) + abs(point[i] - rm);
 
         if(dist < minmax_dist)
             minmax_dist = dist;
@@ -199,10 +199,10 @@ int minmaxdist(vector<int> point, RTNodeEntry* R){
 
 
 /* Calculates the actual Object Distance of the query point to an object in R-Tree */
-int objdist(vector<int> point, vector<int> object){
-    int dist = 0;
+ll objdist(vector<int> point, vector<int> object){
+    ll dist = 0;
     for(int i = 0; i < point.size(); i++){
-        dist += pow((point[i] - object[i]), 2);
+        dist += abs(point[i] - object[i]);
     }
 
     return dist;
@@ -236,7 +236,7 @@ void kNN_Search(RTNode* node, vector<int> &point, priority_queue<NearestN, vecto
     nodes_visited++;
 
     int num_entry = node->entry.size();
-    int dist;
+    ll dist;
 
     NearestN cur_neighbor;
     RTNodeEntry* cur_entry;
@@ -302,7 +302,7 @@ int main(int argc, char** argv){
 
     /* Sanity Check for CLI*/
     if(argc < 2){
-        cerr << "[Error] Enter the number of dimensions and k!!" << endl;
+        cerr << "[Error] Enter k!!" << endl;
         exit(0);
     }
     else if(argc > 2){
@@ -320,7 +320,7 @@ int main(int argc, char** argv){
     filename = "RTree_dim=" + to_string(DIM) + ".txt";
 
     /* Initialize M and m (Max and Min number of childrens for a node) */
-    ::M = floor(4096 / (4*DIM+1));
+    ::M = floor(4096 / (2*DIM+1));
     ::m = floor(M/2);
 
     unordered_map<int, string> lines;
@@ -358,7 +358,7 @@ int main(int argc, char** argv){
         end = clock();
 
         for(int j = 0; j < k; j++){
-            cout << nearest.top().object->doc_num << " " << nearest.top().object->pic_num << endl;
+            cout << nearest.top().dist << " " << nearest.top().object->doc_num << " " << nearest.top().object->pic_num << endl;
             nearest.pop();
         }
 

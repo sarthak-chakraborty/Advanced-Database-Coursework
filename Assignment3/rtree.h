@@ -5,6 +5,8 @@
 
 using namespace std;
 
+typedef long long ll;
+
 struct RTNode;
 
 struct RTNodeEntry{
@@ -27,14 +29,14 @@ typedef struct RTNode RTNode;
 
 typedef struct{
     RTNodeEntry* object;
-    int dist;
+    ll dist;
 }NearestN;
 
 
 typedef struct{
     RTNodeEntry* entry;
-    int mindist;
-    int minmaxdist;
+    ll mindist;
+    ll minmaxdist;
 }ABLEntry;
 
 

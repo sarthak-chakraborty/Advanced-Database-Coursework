@@ -48,12 +48,9 @@ vector<int> gen_query_point(const char* filename){
      while(fgets(line, 5000, fin)){
         char* token = strtok(line, " ");
 
-        int c = 0;
         while(token != NULL){
         if(atoi(token) != 0 || !strcmp(token, "0")){
-            if(c%2 == 0)
-                query_point.push_back(atoi(token));
-            c++;
+            query_point.push_back(atoi(token));
         }
         token = strtok(NULL, " ");
         }

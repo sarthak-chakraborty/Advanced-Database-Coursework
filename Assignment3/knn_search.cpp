@@ -142,6 +142,7 @@ vector<int> gen_query_point(){
         }
      }
 
+    cout << query_point.size() << endl;
     return query_point;
 }
 

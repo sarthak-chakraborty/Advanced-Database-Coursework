@@ -7,6 +7,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer 
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
 
 
 stop_words = set(stopwords.words('english'))
@@ -27,18 +28,34 @@ for article_folder in os.listdir(scrapped_path):
         tokenizer = RegexpTokenizer(r'\w+')
         tokens = tokenizer.tokenize(f_content)
         reduced = [token.lower() for token in tokens if token.lower() not in stop_words and  len(token)>2]
-        stemmed = [ps.stem(word) for word in reduced]
+        tagged = nltk.pos_tag(reduced)
+        
+        stemmed = [ps.stem(word[0]) for word in tagged if word[1]=='NN' or word[1]=='NNS' or word[1]=='NNP' or word[1]=='NNPS']
 
         sentences.append(" ".join(stemmed))
 
 
 # sentences = ["an apple a day keeps the doctor away", "please move away", "apple is red"]
 
-tf = TfidfVectorizer(input='content', encoding='latin1', analyzer='word', ngram_range=(1,1),
+tf = TfidfVectorizer(input='content', encoding='latin1', analyzer='word', ngram_range=(1,3),
                      min_df = 0, use_idf=True, smooth_idf=True, sublinear_tf=True)
 
 tfidf_matrix =  tf.fit_transform(sentences)
 
 print(tfidf_matrix.shape)
+# print(tf.get_feature_names())
 
-print(tf.get_feature_names())
+
+new_keywords = ["Sachin", "India"]
+
+processed_keyword = [ps.stem(word.lower()) for word in new_keywords]
+query_doc = " ".join(processed_keyword)
+X = tf.transform([query_doc])
+
+print(X.shape)
+
+cosine_similarities = linear_kernel(X, tfidf_matrix).flatten()
+related_docs_indices = cosine_similarities.argsort()[:-100:-1]
+
+print(related_docs_indices)
+print(cosine_similarities[related_docs_indices])

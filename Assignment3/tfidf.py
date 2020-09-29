@@ -18,7 +18,7 @@ scrapped_path = os.path.join(os.getcwd(), 'scrapped', 'data')
 
 sentences = []
 file_list = []
-for article_folder in os.listdir(scrapped_path):
+for article_folder in sorted(os.listdir(scrapped_path), key=int):
     content_dirpath = os.path.join(scrapped_path, article_folder, 'content.txt')
     file_list.append(content_dirpath)
 
@@ -36,7 +36,6 @@ for article_folder in os.listdir(scrapped_path):
 
 
 # sentences = ["an apple a day keeps the doctor away", "please move away", "apple is red"]
-
 tf = TfidfVectorizer(input='content', encoding='latin1', analyzer='word', ngram_range=(1,3),
                      min_df = 0, use_idf=True, smooth_idf=True, sublinear_tf=True)
 
@@ -46,16 +45,18 @@ print(tfidf_matrix.shape)
 # print(tf.get_feature_names())
 
 
-new_keywords = ["Sachin", "India"]
+new_keywords = ["Donald", "Trump"]
 
 processed_keyword = [ps.stem(word.lower()) for word in new_keywords]
 query_doc = " ".join(processed_keyword)
+print(query_doc)
 X = tf.transform([query_doc])
 
 print(X.shape)
 
 cosine_similarities = linear_kernel(X, tfidf_matrix).flatten()
-related_docs_indices = cosine_similarities.argsort()[:-100:-1]
+print(cosine_similarities.shape)
+related_docs_indices = cosine_similarities.argsort()[-10:][::-1]
 
-print(related_docs_indices)
+print(related_docs_indices + 1)
 print(cosine_similarities[related_docs_indices])

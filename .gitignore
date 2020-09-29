@@ -2,3 +2,4 @@ scrapped/
 .vscode/
 *.txt
 *.out
+*.pkl

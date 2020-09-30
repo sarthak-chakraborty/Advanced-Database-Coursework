@@ -6,7 +6,8 @@ Sarthak Chakraborty, Omar Eqbal, Nikhil Nayan Jha, Vivek Gupta, Rohan Iswarkar
 ### Intructions
 - Use `crawler_ndtv.py` and `crawler_indianEx.py` to crawl the news sites and store the result in `scrapped/` directory.
 - The organization of the data directory must be as follows:
-	scrapped/
+	    
+        scrapped/
     	|
     	|__ data/
     	|   |

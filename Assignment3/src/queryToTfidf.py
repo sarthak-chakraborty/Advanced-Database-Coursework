@@ -29,7 +29,7 @@ def doc_similarity(keywords):
 
     cosine_similarities = linear_kernel(X, tfidf_matrix).flatten()
     # print(cosine_similarities.shape)
-    related_docs_indices = cosine_similarities.argsort()[-400:][::-1]
+    related_docs_indices = cosine_similarities.argsort()[-50:][::-1]
 
     return related_docs_indices+1
     # print(related_docs_indices + 1)

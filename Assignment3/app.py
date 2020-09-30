@@ -15,7 +15,9 @@ from src import makedata
 
 
 app = Flask(__name__, template_folder='static/templates')
-
+# Compile the cpp files
+subprocess.call(["g++","-std=c++14","src/rtree_insert.cpp","-o","insert"])
+subprocess.call(["g++","-std=c++14","src/knn_search.cpp","-o","knn"])
 
 @app.route('/', methods=['GET', 'POST'])
 def hello():
@@ -39,13 +41,10 @@ def hello():
 
         print(related_docs_indices)
 
-        # Compile Image data for relted documents
+        # Compile Image data for related documents
         makedata.make_data(related_docs_indices)
         imgHist.img_to_Hist(os.path.join(os.getcwd(), photo.filename))
 
-        # Compile the cpp files
-        subprocess.call(["g++","-std=c++14","src/rtree_insert.cpp","-o","insert"])
-        subprocess.call(["g++","-std=c++14","src/knn_search.cpp","-o","knn"])
 
         # Insert pics in R-Tree and run kNN query search
         subprocess.call(["./insert"])

@@ -8,6 +8,7 @@ from flask import Flask, request
 import subprocess
 from subprocess import Popen, PIPE
 import shutil
+import time
 
 from src import queryToTfidf as tfidf
 from src import queryImgToHist as imgHist
@@ -73,7 +74,7 @@ def hello():
             rank -= 1
 
         print(tn)
-        shutil.copyfile(photo.filename, os.path.join(query_dir, photo.filename))
+        shutil.copyfile(photo.filename, os.path.join(query_dir,  str(int(time.time())) + '_' + photo.filename))
 
         return ''
 

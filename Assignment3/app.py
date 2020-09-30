@@ -77,7 +77,7 @@ def results():
         files.append(join(mypath, f))
         doc_num = int(f.split('_')[1])
         line = lines[doc_num][:-1].split(',')
-        links.append(line[2])
+        links.append(line[-1])
 
     result = {
         'files':files,

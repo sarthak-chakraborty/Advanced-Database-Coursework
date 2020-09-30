@@ -4,27 +4,66 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.0/lumen/bootstrap.min.css" rel="stylesheet" integrity="sha384-VMuWne6iwiifi8iEWNZMw8sDatgb6ntBpBIr67q0rZAyOQwfu/VKpnFntQrjxB5W" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 </head>
 
 <body>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="position: fixed; left: 0; right: 0; top: 0; z-index: 10000;">
+		<div class="container">
+		  <a class="navbar-brand" href="#">R-Tree Based Search Engine</a>
+		  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		  </button>
+		
+		  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav ml-auto">
+			  <li class="nav-item active">
+				<a class="nav-link" href="#">Sarthak </a>
+			  </li>
+			  <li class="nav-item active">
+				<a class="nav-link" href="#">Omar </a>
+			  </li>
+			  <li class="nav-item active">
+				<a class="nav-link" href="#">Nikhil </a>
+			  </li>
+			  <li class="nav-item active">
+				<a class="nav-link" href="#">Vivek </a>
+			  </li>
+			  <li class="nav-item active">
+				<a class="nav-link" href="#">Rohan </a>
+			  </li>
+			</ul>
+		  </div>
+		</div>
+	</nav>
+
 	<div class="container pt-5 text-center">
-		<form id="form" enctype="multipart/form-data">
-			<div class="input-group mb-3">
-				<input type="text" class="form-control" placeholder="Enter Keywords" aria-label="Recipient's username" aria-describedby="button-addon2" name="keywords"> </div>
-			<div class="input-group mb-3">
-				<input type="text" class="form-control" placeholder="Nearest Neighbour" aria-label="Recipient's username" aria-describedby="button-addon2" name="kn"> </div>
-			<div class="input-group mb-3">
-				<div class="custom-file">
-					<input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="photo">
-					<label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+		<div class="pt-5 pb-2">
+			<form id="form" enctype="multipart/form-data">
+				<div class="input-group mb-3">
+					<input type="text" class="form-control" placeholder="Enter Keywords (; separated)" name="keywords">
 				</div>
-			</div>
-			<button type="submit" class="btn btn-primary btn-lg" style="border-radius: 0px !important;">Search</button>
-		</form>
+				<div class="input-group mb-3">
+					<input type="text" class="form-control" placeholder="Nearest Neighbour" name="kn">
+				</div>
+				<div class="input-group mb-3">
+					<div class="custom-file">
+						<input type="file" class="custom-file-input" name="photo">
+						<label class="custom-file-label" for="">Choose file</label>
+					</div>
+				</div>
+				<button type="submit" class="btn btn-primary btn-lg" style="border-radius: 0px !important;">Search</button>
+			</form>
+		</div>
+		<div class="row py-5" id="query_img">
+		</div>
 		<div class="row py-5" id="listt">
 		</div>
 	</div>
+
+
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	<script type=text/javascript>
 	$(function() {
@@ -38,7 +77,31 @@
 				success: function() {
 					var li = document.getElementById('listt');
 					li.innerHTML = '';
+					var query = document.getElementById('query_img');
+					query.innerHTML = '';
+
+					$.getJSON('/', function(data) {
+						const div = document.createElement('div');
+						div.className = 'col-4';
+						div.style.marginTop = "1%";
+						console.log(data.files[i])
+						var toAdd = '';
+						toAdd += '<img src="' + data.image + '" class="img-fluid" alt="">';
+						toAdd += '<figcaption style="background-color: black; color: white; font-style: italic; padding: 2px; text-align: center;">Query Image.</figcaption>';
+						div.innerHTML = toAdd;
+						query.appendChild(div);
+					});
+
 					$.getJSON('/results', function(data) {
+						const div = document.createElement('div');
+						div.className = 'col-4';
+						div.style.marginTop = "1%";
+						var toAdd = '';
+						toAdd += '<img src="' + data.query + '" class="img-fluid" alt="">';
+						toAdd += '<figcaption style="background-color: black; color: white; font-style: italic; padding: 2px; text-align: center;">Query Image.</figcaption>';
+						div.innerHTML = toAdd;
+						li.appendChild(div);
+
 						for(var i = 0; i < data.files.length; i++) {
 							const div = document.createElement('div');
 							div.className = 'col-4';

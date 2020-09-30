@@ -27,13 +27,25 @@ def hello():
         keywords = request.form['keywords']
         k = request.form['kn']
         photo = request.files['photo']
+
+        for files in os.listdir(os.getcwd()):
+            if files.endswith('jpg') or files.endswith('png') or files.endswith('jpeg'):
+                os.remove(files)
+
         photo.save(photo.filename)
 
         # Remove Images
         out_images_dir = os.path.join(os.getcwd(), 'static', 'images')
+        query_dir = os.path.join(os.getcwd(), 'static', 'query')
+
         if os.path.exists(out_images_dir):
             shutil.rmtree(out_images_dir)
-            os.makedirs(out_images_dir)
+        os.makedirs(out_images_dir)
+
+        if os.path.exists(query_dir):
+            shutil.rmtree(query_dir)
+        os.makedirs(query_dir)
+        
         
         # Get document similarity
         split_keywords = keywords.split(';')
@@ -48,7 +60,6 @@ def hello():
 
         # Insert pics in R-Tree and run kNN query search
         subprocess.call(["./insert"])
-        print(k)
         result = subprocess.Popen(["./knn", k], stdout=subprocess.PIPE)
         out = result.stdout.read().decode('utf-8')
         tn = out.split('\n')[:-1]
@@ -62,6 +73,7 @@ def hello():
             rank -= 1
 
         print(tn)
+        shutil.copyfile(photo.filename, os.path.join(query_dir, photo.filename))
 
         return ''
 
@@ -69,20 +81,27 @@ def hello():
 @app.route('/results')
 def results():
     mypath = "static/images"
+    querypath = "static/query"
     info_f = open('scrapped/info.csv')
     lines = info_f.readlines()
     links = []
     files = []
+
     for f in sorted(listdir(mypath), key=lambda x:int(x.split('_')[0])):
         files.append(join(mypath, f))
         doc_num = int(f.split('_')[1])
         line = lines[doc_num][:-1].split(',')
         links.append(line[-1])
 
+    for file in os.listdir(querypath):
+        query_img_name = join(querypath, file)
+
     result = {
         'files':files,
-        'links':links
+        'links':links,
+        'query': query_img_name
     }
+
     return json.dumps(result)
 
 

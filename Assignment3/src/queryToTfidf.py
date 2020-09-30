@@ -23,14 +23,9 @@ def doc_similarity(keywords):
         tfidf_matrix = pickle.load(f_in)
 
     X = tf.transform([query_doc])
-
-    # print(tfidf_matrix.shape)
-    # print(X.shape)
-
+    
     cosine_similarities = linear_kernel(X, tfidf_matrix).flatten()
-    # print(cosine_similarities.shape)
     related_docs_indices = cosine_similarities.argsort()[-50:][::-1]
 
     return related_docs_indices+1
-    # print(related_docs_indices + 1)
-    # print(cosine_similarities[related_docs_indices])
+

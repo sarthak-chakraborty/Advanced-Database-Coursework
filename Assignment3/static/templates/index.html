@@ -57,8 +57,6 @@
 				<button type="submit" class="btn btn-primary btn-lg" style="border-radius: 0px !important;">Search</button>
 			</form>
 		</div>
-		<div class="row py-5" id="query_img">
-		</div>
 		<div class="row py-5" id="listt">
 		</div>
 	</div>
@@ -77,27 +75,12 @@
 				success: function() {
 					var li = document.getElementById('listt');
 					li.innerHTML = '';
-					var query = document.getElementById('query_img');
-					query.innerHTML = '';
-
-					$.getJSON('/', function(data) {
-						const div = document.createElement('div');
-						div.className = 'col-4';
-						div.style.marginTop = "1%";
-						console.log(data.files[i])
-						var toAdd = '';
-						toAdd += '<img src="' + data.image + '" class="img-fluid" alt="">';
-						toAdd += '<figcaption style="background-color: black; color: white; font-style: italic; padding: 2px; text-align: center;">Query Image.</figcaption>';
-						div.innerHTML = toAdd;
-						query.appendChild(div);
-					});
 
 					$.getJSON('/results', function(data) {
 						const div = document.createElement('div');
 						div.className = 'col-4';
 						div.style.marginTop = "1%";
-						var toAdd = '';
-						toAdd += '<img src="' + data.query + '" class="img-fluid" alt="">';
+						var toAdd = '<img src="' + data.query + '" class="img-fluid" alt="">';
 						toAdd += '<figcaption style="background-color: black; color: white; font-style: italic; padding: 2px; text-align: center;">Query Image.</figcaption>';
 						div.innerHTML = toAdd;
 						li.appendChild(div);

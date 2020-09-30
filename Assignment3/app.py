@@ -1,13 +1,15 @@
 from flask import Flask
 from flask import render_template
 from os import listdir
+import os
 import json
 from os.path import isfile, join
 from flask import Flask, request
 import subprocess
 from subprocess import Popen, PIPE
 
-from src import tfidf
+from src import queryToTfidf as tfidf
+from src import queryImgToHist as imgHist
 from src import makedata
 
 
@@ -30,13 +32,14 @@ def hello():
 
         # Compile Image data for relted documents
         makedata.make_data(related_docs_indices)
+        imgHist.img_to_Hist(os.path.join(os.getcwd(), photo.filename))
 
         # Insert pics in R-Tree and run kNN query search
         subprocess.Popen(["./insert"])
         result = subprocess.Popen(["./knn", k], stdout=subprocess.PIPE)
 
         out = result.stdout.read()
-
+        
         return ''
 
 

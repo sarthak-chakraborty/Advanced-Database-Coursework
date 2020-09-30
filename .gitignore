@@ -3,5 +3,6 @@ scrapped/
 *.txt
 *.out
 *.pkl
+*.zip
 __pycache__/
 *.jpg

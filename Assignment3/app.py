@@ -53,11 +53,13 @@ def hello():
         out = result.stdout.read().decode('utf-8')
         tn = out.split('\n')[:-1]
 
+        rank = int(k)
         for elem in tn:
             t = elem.split()
             src = os.path.join(os.getcwd(),'scrapped','data',t[0],'images','image{}.jpg'.format(t[1]))
-            dst = os.path.join(out_images_dir, '{}_image{}.jpg'.format(t[0],t[1]))
+            dst = os.path.join(out_images_dir, '{}_{}_image{}.jpg'.format(rank,t[0],t[1]))
             shutil.copyfile(src, dst)
+            rank -= 1
 
         print(tn)
 
@@ -67,8 +69,21 @@ def hello():
 @app.route('/results')
 def results():
     mypath = "static/images"
-    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-    return json.dumps(onlyfiles)
+    info_f = open('scrapped/info.csv')
+    lines = info_f.readlines()
+    links = []
+    files = []
+    for f in sorted(listdir(mypath), key=lambda x:int(x.split('_')[0])):
+        files.append(join(mypath, f))
+        doc_num = int(f.split('_')[1])
+        line = lines[doc_num][:-1].split(',')
+        links.append(line[2])
+
+    result = {
+        'files':files,
+        'links':links
+    }
+    return json.dumps(result)
 
 
 if __name__ == '__main__':

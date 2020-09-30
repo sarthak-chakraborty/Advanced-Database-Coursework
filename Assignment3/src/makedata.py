@@ -8,7 +8,7 @@ import os
 import sys
 
 def make_data(docs):
-    scrapped_path = os.path.join(os.getcwd(), '..', 'scrapped', 'data')
+    scrapped_path = os.path.join(os.getcwd(), 'scrapped', 'data')
 
     OUT_FILE = 'img_data.txt'
     fd_out = open(OUT_FILE, 'w')

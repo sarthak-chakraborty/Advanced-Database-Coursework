@@ -139,7 +139,6 @@ vector<int> gen_query_point(){
         }
      }
 
-    cout << query_point.size() << endl;
     return query_point;
 }
 
@@ -324,17 +323,17 @@ int main(int argc, char** argv){
 
     unordered_map<int, string> lines;
 
-    cout << "Loading File..." <<  endl;
+    // cout << "Loading File..." <<  endl;
     int root_node_num = ReadFile(filename, lines);
-    cout << "Done Loading" <<  endl;  
+    // cout << "Done Loading" <<  endl;  
 
     RTNode* root = (RTNode *)mem_alloc(sizeof(RTNode));
     root->parent = NULL;
     root->RTNode_num = root_node_num;
 
-    cout << "Reading Tree..." <<  endl;
+    // cout << "Reading Tree..." <<  endl;
     ReadTree(root, lines);
-    cout << "Reading Complete\n" << endl;    
+    // cout << "Reading Complete\n" << endl;    
     lines.clear();
 
     srand(time(0));
@@ -346,7 +345,7 @@ int main(int argc, char** argv){
 
     for(int i = 0; i < N_Trials; i++){
         query_point = gen_query_point();
-        cout << "Query Point " << i << endl;
+        // cout << "Query Point " << i << endl;
 
         nodes_visited = 0;
 
@@ -357,23 +356,23 @@ int main(int argc, char** argv){
         end = clock();
 
         for(int j = 0; j < k; j++){
-            cout << nearest.top().dist << " " << nearest.top().object->doc_num << " " << nearest.top().object->pic_num << endl;
+            cout << nearest.top().object->doc_num << " " << nearest.top().object->pic_num << endl;
             nearest.pop();
         }
 
         time_taken = double(end - start) / CLOCKS_PER_SEC;
         total_time += time_taken;
-        cout << "Time taken : " << time_taken << endl;
+        // cout << "Time taken : " << time_taken << endl;
 
         total_nodes_visited += nodes_visited;
-        cout << "Number of Nodes visited : " << nodes_visited << endl;
+        // cout << "Number of Nodes visited : " << nodes_visited << endl;
 
-        cout<<endl;
+        // cout<<endl;
 
     }
 
-    cout << "Average Time Taken : " << total_time/N_Trials << endl;
-    cout << "Average Number of Nodes visited : " << total_nodes_visited/N_Trials << endl;
+    // cout << "Average Time Taken : " << total_time/N_Trials << endl;
+    // cout << "Average Number of Nodes visited : " << total_nodes_visited/N_Trials << endl;
 
     return 0;
 }

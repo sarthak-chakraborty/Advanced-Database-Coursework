@@ -387,7 +387,7 @@ RTNode* Insert(const char* filename){
     
     int c = 1;
     while(fgets(line, MAXLINE, fin)){
-        cout << c++ << endl;
+        // cout << c++ << endl;
 
         /* Make new RTNodeEntry */
         RTNodeEntry* entry = (RTNodeEntry*)mem_alloc(sizeof(RTNodeEntry));

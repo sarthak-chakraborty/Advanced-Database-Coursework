@@ -19,7 +19,7 @@ def normalize(arr):
     return arr
 
 
-scrapped_path = os.path.join(os.getcwd(), 'scrapped', 'data')
+scrapped_path = os.path.join(os.getcwd(), '..', 'scrapped', 'data')
 
 for article_folder in os.listdir(scrapped_path):
     print(article_folder)
@@ -31,9 +31,11 @@ for article_folder in os.listdir(scrapped_path):
         img = Image.open(os.path.join(image_dirpath, image))
         img_grayscale = ImageOps.grayscale(img)
 
-        arr = np.array(img_grayscale)
-        img2 = Image.fromarray(normalize(arr).astype('uint8'))
-        img3 = ImageOps.equalize(img2, mask=None)
+        # arr = np.array(img_grayscale)
+        # img2 = Image.fromarray(normalize(arr).astype('uint8'))
+        # img3 = ImageOps.equalize(img2, mask=None)
+
+        img3 = img_grayscale
 
         hist = img3.histogram()
 

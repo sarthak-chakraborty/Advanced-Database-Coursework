@@ -23,9 +23,11 @@ def img_to_Hist(image):
     img = Image.open(os.path.join(os.getcwd(), image))
     img_grayscale = ImageOps.grayscale(img)
 
-    arr = np.array(img_grayscale)
-    img2 = Image.fromarray(normalize(arr).astype('uint8'))
-    img3 = ImageOps.equalize(img2, mask=None)
+    # arr = np.array(img_grayscale)
+    # img2 = Image.fromarray(normalize(arr).astype('uint8'))
+    # img3 = ImageOps.equalize(img2, mask=None)
+
+    img3 = img_grayscale
 
     hist = img3.histogram()
 

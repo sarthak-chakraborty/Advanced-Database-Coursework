@@ -13,7 +13,7 @@ import pickle
 stop_words = set(stopwords.words('english'))
 ps = PorterStemmer()
 
-scrapped_path = os.path.join(os.getcwd(), 'scrapped', 'data')
+scrapped_path = os.path.join(os.getcwd(), '..', 'scrapped', 'data')
 
 sentences = []
 file_list = []

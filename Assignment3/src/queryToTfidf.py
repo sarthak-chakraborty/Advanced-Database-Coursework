@@ -16,10 +16,10 @@ def doc_similarity(keywords):
     processed_keyword = [ps.stem(word.lower()) for word in keywords]
     query_doc = " ".join(processed_keyword)
 
-    with open('tf.pkl', 'rb') as f_in:
+    with open('src/tf.pkl', 'rb') as f_in:
         tf = pickle.load(f_in)
 
-    with open('tfidf_matrix.pkl', 'rb') as f_in:
+    with open('src/tfidf_matrix.pkl', 'rb') as f_in:
         tfidf_matrix = pickle.load(f_in)
 
     X = tf.transform([query_doc])
@@ -29,7 +29,7 @@ def doc_similarity(keywords):
 
     cosine_similarities = linear_kernel(X, tfidf_matrix).flatten()
     # print(cosine_similarities.shape)
-    related_docs_indices = cosine_similarities.argsort()[-10:][::-1]
+    related_docs_indices = cosine_similarities.argsort()[-400:][::-1]
 
     return related_docs_indices+1
     # print(related_docs_indices + 1)

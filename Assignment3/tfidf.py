@@ -8,7 +8,7 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-
+import pickle
 
 stop_words = set(stopwords.words('english'))
 ps = PorterStemmer()
@@ -44,19 +44,10 @@ tfidf_matrix =  tf.fit_transform(sentences)
 print(tfidf_matrix.shape)
 # print(tf.get_feature_names())
 
+with open('tf.pkl', 'wb') as f_out:
+    pickle.dump(tf, f_out)
 
-new_keywords = ["Donald", "Trump"]
+with open('tfidf_matrix.pkl', 'wb') as f_out:
+    pickle.dump(tfidf_matrix, f_out)
 
-processed_keyword = [ps.stem(word.lower()) for word in new_keywords]
-query_doc = " ".join(processed_keyword)
-print(query_doc)
-X = tf.transform([query_doc])
-
-print(X.shape)
-
-cosine_similarities = linear_kernel(X, tfidf_matrix).flatten()
-print(cosine_similarities.shape)
-related_docs_indices = cosine_similarities.argsort()[-10:][::-1]
-
-print(related_docs_indices + 1)
-print(cosine_similarities[related_docs_indices])
+print('Done writing tfidf')

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+</head>
+
+<body>
+	<div class="container pt-5 text-center">
+		<form id="form" enctype="multipart/form-data">
+			<div class="input-group mb-3">
+				<input type="text" class="form-control" placeholder="Enter Keywords" aria-label="Recipient's username" aria-describedby="button-addon2" name="keywords"> </div>
+			<div class="input-group mb-3">
+				<input type="text" class="form-control" placeholder="Nearest Neighbour" aria-label="Recipient's username" aria-describedby="button-addon2" name="kn"> </div>
+			<div class="input-group mb-3">
+				<div class="custom-file">
+					<input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="photo">
+					<label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+				</div>
+			</div>
+			<button type="submit" class="btn btn-primary btn-lg" style="border-radius: 0px !important;">Search</button>
+		</form>
+		<button type="button" class="btn btn-primary btn-lg" style="border-radius: 0px !important; margin-top: 2%;" id="test">Load Results</button>
+		<div class="row py-5" id="listt">
+			<div class="col-4" style="margin-top: 1%;"> <img src="/static/images/pexels-kevin-bidwell-1407130.jpg" class="img-fluid" alt=""> </div>
+		</div>
+	</div>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type=text/javascript>
+	$(function() {
+		$('button#test').bind('click', function() {
+			var li = document.getElementById('listt');
+			li.innerHTML = '';
+			$.getJSON('/results', function(data) {
+				for(var i = 0; i < data.length; i++) {
+					const div = document.createElement('div');
+					div.className = 'col-4';
+					div.style.marginTop = "1%";
+					div.innerHTML = '<img src="/static/images/' + data[i] + '" class="img-fluid" alt="">'
+					li.appendChild(div);
+				}
+			});
+			return false;
+		});
+		$('#form').submit(function(e) {
+			e.preventDefault();
+			var formData = new FormData(this);
+			$.ajax({
+				url: '/',
+				type: 'post',
+				data: formData,
+				success: function() {
+					alert('Submitted!')
+				},
+				cache: false,
+				contentType: false,
+				processData: false
+			});
+		});
+	});
+	</script>
+</body>
+
+</html>

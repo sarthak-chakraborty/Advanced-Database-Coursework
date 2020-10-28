@@ -1,8 +1,10 @@
 scrapped/
 .vscode/
-*.txt
+Assignment1/*.txt
+Assignment2/*.txt
 *.out
 *.pkl
 *.zip
 __pycache__/
 *.jpg
+*.mp4

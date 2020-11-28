@@ -8,3 +8,5 @@ Assignment2/*.txt
 __pycache__/
 *.jpg
 *.mp4
+insert_fact_*.sql
+Assignment6/*.json

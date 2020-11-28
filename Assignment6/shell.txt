@@ -1,0 +1,32 @@
+############################
+    Sarthak Chakraborty
+    16CS30044
+############################
+
+
+Q1.
+db.tutorial.aggregate([ { $match : {'place.country_code' : {$exists : true, $ne : null}}},
+                        { $group : {_id : '$place.country_code', 'count' : {$sum : 1}}},
+                        { $sort : {'count' : -1}},
+                        { $project : {_id:0, 'Country_code':'$_id', 'number_of_tweets':'$count'}}
+])
+
+
+
+Q2.
+db.tutorial.aggregate([ { $match : {'place.country_code' : {$exists : true, $ne : null}}},
+                        { $group : {_id : {'Country_code' : '$place.country_code', 'lang' : '$lang'}, 'count' : {$sum : 1}}},
+                        { $group : {_id : '$_id.Country_code', 'count' : {$max : '$count'}}},
+                        { $sort : {'count' : -1}},
+                        { $project : {_id:0, 'Country_code':'$_id', 'number_of_tweets_in_lang':'$count'}}
+])
+
+
+
+Q3.
+db.tutorial.aggregate([ { $match : {'created_at_iso' : {$gte : new ISODate('2016-01-01')}}},
+                        { $group : {_id : '$user.id_str', 'count' : {$sum : 1}}},
+                        { $match : {'count' : {$gt : 1, $lt : 5}}},
+                        { $sort : {'count' : -1}},
+                        { $project : {'num_tweets' : '$count'}}
+])

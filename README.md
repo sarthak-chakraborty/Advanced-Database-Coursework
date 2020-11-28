@@ -15,3 +15,15 @@ Implemented an Image and Content based *search engine* for a news filtering. Scr
 
 ### Assignment 4
 Presentation and Analysis on the paper ["A critique of ANSI SQL isolation levels"](https://dl.acm.org/doi/10.1145/223784.223785)
+
+
+### Assignment 5
+Comparison of the query time for various database engines. Comapred MySql Database with innodb` and `columnstore` engines, MariaDB and Monet DB. Created a Fact table and 3 Dimension tables, inserted identical values in them and then compared the query time for 5 queries.
+
+
+### Assignment 6
+Implemented several queries for MongoDB using `mongoshell` and `pymongo` to insert and return the records in a collection. We have used a json file of twitter records as the database entries.
+
+
+### Assignment 7
+Implemented a simple Blockchain to calculate the SGPA of a student for a particular semester. Used `truffle` for compiling and `Ganache` as the personal Ethereum Blockchain. Also implemented a javascript file using `web3js` to interact with `Ganache`.
